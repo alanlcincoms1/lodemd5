@@ -1,0 +1,31 @@
+<h1>
+    Web Socket Example
+</h1>
+<p>
+    open console to see connection.
+</p>
+<button onclick=" sendMessage()">Connect</button>
+<script>
+    let ws = [];
+    function connect(){
+        ws = new WebSocket("ws://169.56.152.158:4677");
+        ws.onopen = function () {
+            console.log('connected!');
+        };
+        ws.onmessage = function (data) {
+            console.log(data);
+        };
+        ws.onclose = function () {
+            setTimeout(function () {
+                if (!ws || ws.readyState != ws.OPEN) {
+                    connect();
+                }
+            }, 5000);
+        };
+    }
+    connect();
+
+    function sendMessage() {
+        ws.send(JSON.stringify({'connect' : "xxxxx_stagingshadow"}));
+    }
+</script>
