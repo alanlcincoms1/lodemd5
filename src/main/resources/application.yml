@@ -1,32 +1,9 @@
 ---
 spring:
-  profiles: local
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/lucky?useUnicode=yes&characterEncoding=UTF-8
-    username: daniel
-    password: P@s$w0rd123!
-  redis:
-    host: 127.0.0.1
-    port: 6379
-  jpa:
-    hibernate:
-      ddl-auto: update
-  main:
-    allow-bean-definition-overriding: true
-server:
-  port: 8089
-sentry:
-  enabled: true
-  environment: development
-prefix_game: lucky_
-
----
-spring:
   profiles: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/lucky-dev?useUnicode=yes&characterEncoding=UTF-8
+    url: jdbc:mysql://127.0.0.1:3306/lucky?useUnicode=yes&characterEncoding=UTF-8
     username: daniel
     password: P@s$w0rd123!
   redis:
