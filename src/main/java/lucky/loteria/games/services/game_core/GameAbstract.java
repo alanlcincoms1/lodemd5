@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import lucky.loteria.games.internal_dto.OddResponse;
 import lucky.loteria.games.repository.impl.BetRepository;
 import lucky.loteria.games.repository.impl.TableRepository;
-import lucky.loteria.games.services.SocketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,6 @@ import java.util.List;
 public abstract class GameAbstract implements IGame {
     private TableRepository tableRepository;
     private BetRepository betRepository;
-    private SocketService socketService;
     private Gson gson;
     public Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     public String groupName = "";
@@ -28,12 +26,10 @@ public abstract class GameAbstract implements IGame {
     public GameAbstract(
             TableRepository tableRepository,
             BetRepository betRepository,
-            SocketService socketService,
             Gson gson
     ) {
         this.tableRepository = tableRepository;
         this.betRepository = betRepository;
-        this.socketService = socketService;
         this.gson = gson;
     }
 

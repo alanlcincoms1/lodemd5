@@ -2,12 +2,13 @@ package lucky.loteria.games.services.game_instance;
 
 import com.google.gson.Gson;
 import lucky.loteria.games.constance.Constance;
-import lucky.loteria.games.model.*;
+import lucky.loteria.games.model.Bet;
+import lucky.loteria.games.model.Config;
+import lucky.loteria.games.model.Table;
 import lucky.loteria.games.model.redis.ConfigurationRedis;
 import lucky.loteria.games.repository.impl.BetRepository;
 import lucky.loteria.games.repository.impl.TableRepository;
 import lucky.loteria.games.services.ConfigurationService;
-import lucky.loteria.games.services.SocketService;
 import lucky.loteria.games.services.UserService;
 import lucky.loteria.games.services.game_core.DataResults;
 import lucky.loteria.games.services.game_core.GameAbstract;
@@ -32,16 +33,11 @@ public class GameLucky extends GameAbstract {
     ConfigurationService configurationService;
 
     @Autowired
-    SocketService socketService;
-
-
-    @Autowired
     public GameLucky(
             TableRepository tableRepository,
             BetRepository betRepository,
-            SocketService socketService,
             Gson gson) {
-        super(tableRepository, betRepository, socketService, gson);
+        super(tableRepository, betRepository, gson);
         groupName = GameLucky.GROUP_NAME;
         this.betRepository = betRepository;
     }

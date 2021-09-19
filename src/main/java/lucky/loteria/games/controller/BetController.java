@@ -5,33 +5,24 @@ import com.google.gson.GsonBuilder;
 import io.sentry.Sentry;
 import lucky.loteria.games.external_dto.response.BetResponse;
 import lucky.loteria.games.internal_dto.BetForm;
-import lucky.loteria.games.internal_dto.BetHistoriesForm;
-import lucky.loteria.games.model.*;
+import lucky.loteria.games.model.Bet;
+import lucky.loteria.games.model.Table;
 import lucky.loteria.games.model.redis.ConfigurationRedis;
 import lucky.loteria.games.model.redis.UserRedis;
 import lucky.loteria.games.repository.impl.BetRepository;
 import lucky.loteria.games.repository.impl.TableRepository;
-import lucky.loteria.games.repository.impl.TransactionRepository;
-import lucky.loteria.games.repository.impl.UserRedisRepository;
 import lucky.loteria.games.services.ConfigurationService;
-import lucky.loteria.games.services.SocketService;
 import lucky.loteria.games.services.UserService;
 import lucky.loteria.games.services.game_core.DataResults;
 import lucky.loteria.games.services.game_core.GameAbstract;
 import lucky.loteria.games.services.game_core.GameFactory;
-import lucky.loteria.games.utils.GameUtils;
-import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @RestController
