@@ -16,7 +16,7 @@ public class DataResultConverter implements AttributeConverter<DataResults, Stri
     @Override
     public DataResults convertToEntityAttribute(String dbData) {
         if (dbData.isBlank())
-			return null;
+            return null;
         return new Gson().fromJson(dbData, DataResults.class);
     }
 }

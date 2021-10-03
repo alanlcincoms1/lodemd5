@@ -7,6 +7,12 @@ import java.io.Serializable;
 
 @Data
 public class SimpleConfig implements Serializable {
+    @SerializedName("total")
+    Integer total;
     @SerializedName("prize")
-    String prize;
+    Double prize;
+    @SerializedName("index")
+    String index;
+    @SerializedName("numberOfAlphabet")
+    Integer numberOfAlphabet;
 }

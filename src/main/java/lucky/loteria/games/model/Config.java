@@ -11,12 +11,17 @@ import java.util.stream.Collectors;
 
 @Data
 public class Config implements Serializable {
+    @SerializedName("reel")
+    Integer reel;
+    @SerializedName("start")
+    Integer start;
+    @SerializedName("distribution")
+    Integer distribution;
     @SerializedName("prize")
-    String prize;
+    Double prize;
 
-    public List<Double> getListPrize() {
-        List<Double> indexs = Arrays.stream(prize.split(",")).map(Double::parseDouble).collect(Collectors.toList());
-        Collections.shuffle(indexs);
-        return indexs;
+    public boolean isLose() {
+        return prize == 0;
     }
+
 }

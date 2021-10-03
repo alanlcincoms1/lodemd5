@@ -1,4 +1,4 @@
 package lucky.loteria.games.exception;
 
-public class AuthenticationException extends Exception{
+public class AuthenticationException extends Exception {
 }

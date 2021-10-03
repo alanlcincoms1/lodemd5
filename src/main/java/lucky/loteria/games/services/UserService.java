@@ -2,13 +2,14 @@ package lucky.loteria.games.services;
 
 import com.google.gson.Gson;
 import io.sentry.Sentry;
-import lucky.loteria.games.constance.Constance;
 import lucky.loteria.games.exception.WalletException;
 import lucky.loteria.games.external_dto.request.BetDataRequest;
 import lucky.loteria.games.external_dto.request.TransferBalanceRequest;
-import lucky.loteria.games.external_dto.response.*;
+import lucky.loteria.games.external_dto.response.UserBalanceUpdateDto;
+import lucky.loteria.games.external_dto.response.UserBalanceUpdateResponseDto;
+import lucky.loteria.games.external_dto.response.UserTokenDto;
+import lucky.loteria.games.external_dto.response.UserTokenResponseDto;
 import lucky.loteria.games.model.*;
-import lucky.loteria.games.model.redis.UserBoRedis;
 import lucky.loteria.games.model.redis.UserRedis;
 import lucky.loteria.games.repository.impl.*;
 import lucky.loteria.games.utils.ExternalRequestUtils;
@@ -19,7 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -29,11 +33,17 @@ public class UserService {
     @Value("${update_balance_url}")
     private String updateBalanceURL;
 
+    @Value("${bo_auth_url}")
+    private String boAuthUrl;
+
     @Value("${prefix_game}")
     private String prefixGame;
 
     @Autowired
     private UserRedisRepository userRedisRepository;
+
+    @Autowired
+    private SessionLogRepository sessionLogRepository;
 
     @Autowired
     private TableRepository tableRepository;
@@ -91,7 +101,33 @@ public class UserService {
         userRepository.save(user);
         userRedisRepository.save(userRedis);
 
+        SessionLog sessionLog = new SessionLog();
+        sessionLog.setMemberId(userRedis.getMember_id());
+        sessionLog.setUid(userRedis.getUid());
+        sessionLog.setIp(httpServletRequest.getRemoteAddr());
+        sessionLog.setToken(token);
+        sessionLog.setUserAgent(httpServletRequest.getHeader("User-Agent"));
+        sessionLog.setCreatedDate(new Date());
+        sessionLog.setUpdatedDate(new Date());
+        sessionLogRepository.save(sessionLog);
 
+        return userTokenResponseDto;
+    }
+
+    private UserTokenResponseDto createUserResponse() {
+        UserTokenResponseDto userTokenResponseDto = new UserTokenResponseDto();
+        List<UserTokenDto> userTokenDtoList = new ArrayList<>();
+        UserTokenDto userTokenDto = new UserTokenDto();
+        userTokenDto.setMain_balance(100.0);
+        userTokenDto.setExtra_balance(100.0);
+        userTokenDto.setStatus("ACTIVE");
+        userTokenDto.setFullname("dev daniel");
+        userTokenDto.setUsername("daniel");
+        userTokenDto.setAgency_code("14");
+        userTokenDto.setAgency_id(1);
+        userTokenDto.setUid("lucky_daniel");
+        userTokenDtoList.add(userTokenDto);
+        userTokenResponseDto.setData(userTokenDtoList);
         return userTokenResponseDto;
     }
 
@@ -143,23 +179,6 @@ public class UserService {
         }
 
         return userRedis;
-    }
-
-    private UserTokenResponseDto createUserResponse() {
-        UserTokenResponseDto userTokenResponseDto = new UserTokenResponseDto();
-        List<UserTokenDto> userTokenDtoList = new ArrayList<>();
-        UserTokenDto userTokenDto = new UserTokenDto();
-        userTokenDto.setMain_balance(100.0);
-        userTokenDto.setExtra_balance(100.0);
-        userTokenDto.setStatus("ACTIVE");
-        userTokenDto.setFullname("dev daniel");
-        userTokenDto.setUsername("daniel");
-        userTokenDto.setAgency_code("14");
-        userTokenDto.setAgency_id(1);
-        userTokenDto.setUid("lucky_daniel");
-        userTokenDtoList.add(userTokenDto);
-        userTokenResponseDto.setData(userTokenDtoList);
-        return userTokenResponseDto;
     }
 
     public UserBalanceUpdateDto updateBalanceWhenBet(String token, Bet bet, Transaction transaction, Table table) throws WalletException {
@@ -238,9 +257,21 @@ public class UserService {
         } else {
             transferBalanceRequest.setUid(bet.getUid());
         }
-
-        double amount = bet.getAmount() + bet.getAmountWin();
-
+        String status = bet.getStatus();
+        double amount = 0.0;
+        switch (status) {
+            case "WIN":
+                amount = bet.getAmount() + bet.getAmountWin();
+                break;
+            case "LOSE":
+                amount = bet.getAmount() + bet.getAmountLose();
+                break;
+            case "BET":
+                amount = bet.getAmount();
+                break;
+            default:
+                break;
+        }
         transferBalanceRequest.setAmount(amount * DONGIA_VND);
         transferBalanceRequest.setTransaction_id(transaction.getTransactionHash() + "." + transaction.getId());
         transferBalanceRequest.setAction(action);
@@ -258,5 +289,8 @@ public class UserService {
         return transferBalanceRequest;
     }
 
+    public User getUserByUid(String uid) {
+        return userRepository.getUserByUidEquals(uid);
+    }
 
 }

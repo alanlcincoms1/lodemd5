@@ -1,11 +1,80 @@
 {
   "A": {
-    "prize": "100.0,0.0,0.5,1.0,1.5"
+    "reel": 1,
+    "start": 0,
+    "distribution": 1250,
+    "prize": 0
   },
   "B": {
-    "prize": "100.0,0.0,1.5,2.0,5.0,7.0"
+    "reel": 1,
+    "start": 1250,
+    "distribution": 2500,
+    "prize": 0.5
   },
   "C": {
-    "prize": "100.0,0.0,2.0,3.0,5.0,7.0,20.0"
+    "reel": 1,
+    "start": 2500,
+    "distribution": 6250,
+    "prize": 1
+  },
+  "D": {
+    "reel": 1,
+    "start": 6250,
+    "distribution": 6719,
+    "prize": 1.5
+  },
+  "E": {
+    "reel": 2,
+    "start": 6719,
+    "distribution": 7344,
+    "prize": 1.5
+  },
+  "F": {
+    "reel": 2,
+    "start": 7344,
+    "distribution": 8282,
+    "prize": 2
+  },
+  "G": {
+    "reel": 2,
+    "start": 8282,
+    "distribution": 9063,
+    "prize": 3
+  },
+  "H": {
+    "reel": 2,
+    "start": 9063,
+    "distribution": 9165,
+    "prize": 5
+  },
+  "I": {
+    "reel": 3,
+    "start": 9165,
+    "distribution": 9318,
+    "prize": 2
+  },
+  "J": {
+    "reel": 3,
+    "start": 9318,
+    "distribution": 9420,
+    "prize": 3
+  },
+  "K": {
+    "reel": 3,
+    "start": 9420,
+    "distribution": 9583,
+    "prize": 5
+  },
+  "L": {
+    "reel": 3,
+    "start": 9583,
+    "distribution": 9788,
+    "prize": 8
+  },
+  "M": {
+    "reel": 3,
+    "start": 9788,
+    "distribution": 9788,
+    "prize": 20
   }
 }

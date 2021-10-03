@@ -24,6 +24,7 @@ public interface BetRepository extends JpaRepository<Bet, Integer> {
 
     Page<Bet> findAllByCreatedDateGreaterThanAndUidEqualsAndCreatedDateLessThanEqualAndStatusIsNot(Date fromDate, String uid, Date toDate, String status, Pageable pageable);
 
+
     @Query(value = "SELECT " +
             "CAST(bet.created_date AS DATE) as betDate, " +
             "sum(amount) AS amountTotal, " +
@@ -36,8 +37,4 @@ public interface BetRepository extends JpaRepository<Bet, Integer> {
     )
     List<IBetStatement> dailyStatement(String uid);
 
-    @Query(value = "select * from bet where uid = :uid order by created_date desc LIMIT 1", nativeQuery = true)
-    Bet findLastByUid(String uid);
-
-    void deleteById(long id);
 }

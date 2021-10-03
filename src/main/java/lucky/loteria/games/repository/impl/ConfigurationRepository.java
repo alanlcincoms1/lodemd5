@@ -1,7 +1,6 @@
 package lucky.loteria.games.repository.impl;
 
 import lucky.loteria.games.model.Configuration;
-import lucky.loteria.games.model.redis.ConfigurationRedis;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

@@ -7,7 +7,6 @@ import lucky.loteria.games.repository.impl.ConfigurationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +20,9 @@ public class ConfigurationService {
 
     public ConfigurationRedis getConfig(long tableId) {
         Optional<ConfigurationRedis> configuration = configurationRedisRepository.findById(tableId);
-        if(configuration.isEmpty()) {
+        if (configuration.isEmpty()) {
             Configuration c = configurationRepository.findByTableId(tableId);
-            if(c != null) {
+            if (c != null) {
                 configurationRedisRepository.save(c.toRedisObject());
                 return c.toRedisObject();
             } else {

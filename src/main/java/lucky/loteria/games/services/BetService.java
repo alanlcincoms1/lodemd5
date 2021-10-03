@@ -7,7 +7,6 @@ import lucky.loteria.games.model.Transaction;
 import lucky.loteria.games.repository.impl.BetRepository;
 import lucky.loteria.games.repository.impl.TransactionRepository;
 import lucky.loteria.games.services.game_core.GameFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -16,16 +15,17 @@ import java.util.List;
 @Service
 public class BetService {
 
-    @Autowired
-    BetRepository betRepository;
+    private final BetRepository betRepository;
 
-    @Autowired
-    TransactionRepository transactionRepository;
-    @Autowired
-    GameFactory gameFactory;
+    private final TransactionRepository transactionRepository;
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+
+    public BetService(BetRepository betRepository, TransactionRepository transactionRepository, GameFactory gameFactory, UserService userService) {
+        this.betRepository = betRepository;
+        this.transactionRepository = transactionRepository;
+        this.userService = userService;
+    }
 
     public void updateBetsAfterResult(String[] status) {
         List<Bet> bets = betRepository.findAllByStatusInAndIsRunningEquals(
@@ -33,46 +33,50 @@ public class BetService {
                 Bet.RUNNING_STATUS.RUNNING.getValue()
         );
         for (Bet bet : bets) {
-            try {
-                //update bet
-                bet.setUpdatedDate(new Date());
-                bet = betRepository.save(bet);
+            transactionBet(bet);
+        }
+    }
 
-                //create transaction
-                Transaction transaction = new Transaction();
-                transaction.setMemberId(bet.getMemberId());
-                transaction.setAmount(bet.getAmountWin());
-                transaction.setBet(bet);
-                transaction.setType(bet.getStatus());
-                transaction.setStatus(Transaction.TransactionStatus.NONE.name());
-                transaction.setTransactionHash(System.currentTimeMillis() + "");
-                transaction.setCreatedDate(new Date());
+    public void transactionBet(Bet bet) {
+        try {
+            //update bet
+            bet.setUpdatedDate(new Date());
+            bet = betRepository.save(bet);
+
+            //create transaction
+            Transaction transaction = new Transaction();
+            transaction.setMemberId(bet.getMemberId());
+            transaction.setAmount(bet.getAmount());
+            transaction.setBet(bet);
+            transaction.setType(bet.getStatus());
+            transaction.setStatus(Transaction.TransactionStatus.NONE.name());
+            transaction.setTransactionHash(System.currentTimeMillis() + "");
+            transaction.setCreatedDate(new Date());
+            transaction.setUpdatedDate(new Date());
+            transactionRepository.save(transaction);
+
+            UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet, transaction);
+
+            if (userBalanceUpdateDto == null || userBalanceUpdateDto.getError_code() != 200) {
+                transaction.setStatus(Transaction.TransactionStatus.FAIL.name());
+                transaction.setNote(userBalanceUpdateDto == null ? "no response" : userBalanceUpdateDto.toString());
                 transaction.setUpdatedDate(new Date());
                 transactionRepository.save(transaction);
 
-                UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet, transaction);
-
-                if (userBalanceUpdateDto == null || userBalanceUpdateDto.getError_code() != 200) {
-                    transaction.setStatus(Transaction.TransactionStatus.FAIL.name());
-                    transaction.setNote(userBalanceUpdateDto == null ? "no response" : userBalanceUpdateDto.toString());
-                    transaction.setUpdatedDate(new Date());
-                    transactionRepository.save(transaction);
-
-                    //update bet
-                    bet.setIsRunning(Bet.RUNNING_STATUS.ERROR.getValue());
-                    bet.setUpdatedDate(new Date());
-                    betRepository.save(bet);
-                    continue;
-                }
-                //update transaction
-                updateTransactionAfterCallWallet(transaction, userBalanceUpdateDto);
-                bet.setIsRunning(Bet.RUNNING_STATUS.FINISH.getValue());
+                //update bet
+                bet.setIsRunning(Bet.RUNNING_STATUS.ERROR.getValue());
                 bet.setUpdatedDate(new Date());
                 betRepository.save(bet);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Sentry.capture("Update WIN/LOSE Error: " + e.getMessage());
+                return;
             }
+            //update transaction
+            updateTransactionAfterCallWallet(transaction, userBalanceUpdateDto);
+            bet.setIsRunning(Bet.RUNNING_STATUS.FINISH.getValue());
+            bet.setUpdatedDate(new Date());
+            betRepository.save(bet);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Sentry.capture("Update WIN/LOSE Error: " + e.getMessage());
         }
     }
 

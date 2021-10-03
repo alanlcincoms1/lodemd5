@@ -18,11 +18,10 @@ import java.util.HashMap;
 @EqualsAndHashCode(callSuper = false)
 public class Configuration extends BaseEntity {
     Long tableId;
-    double prize = 50_000;
-
+    Double prize;
     @Column(columnDefinition = "TEXT")
     String collection;
-    int totalDistribution;
+    Integer totalDistribution;
     String event;
     String alphabetEvent;
 

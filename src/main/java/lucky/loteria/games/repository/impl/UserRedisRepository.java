@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRedisRepository extends CrudRepository<UserRedis, String>{
+    public UserRedis findUserRedisByTokenEquals(String token);
 }

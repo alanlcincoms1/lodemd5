@@ -3,15 +3,16 @@ package lucky.loteria.games.model.redis;
 import com.google.gson.Gson;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lucky.loteria.games.model.BaseEntity;
 import lucky.loteria.games.model.Config;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Data
-@RedisHash("Configuration")
+@EqualsAndHashCode
+@RedisHash(value = "Configuration", timeToLive = 24 * 60 * 60)
 public class ConfigurationRedis {
     @Id
     Long tableId;
@@ -22,8 +23,8 @@ public class ConfigurationRedis {
     String alphabetEvent;
 
     public HashMap<String, Config> getCollection() {
-        HashMap<String, Config> map = new HashMap<>();
-        map =  new Gson().fromJson(this.collection, map.getClass());
+        Map<String, Config> map = new HashMap<>();
+        map = new Gson().fromJson(this.collection, map.getClass());
         String[] keys = this.getEvent();
         HashMap<String, Config> result = new HashMap<>();
         for (String key : keys) {
@@ -34,7 +35,7 @@ public class ConfigurationRedis {
         return result;
     }
 
-    public String[] getEvent(){
+    public String[] getEvent() {
         return this.event.split(",");
     }
 }

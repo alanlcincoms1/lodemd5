@@ -1,16 +1,6 @@
 package lucky.loteria.games.services.tests;
 
-import lucky.loteria.games.model.Bet;
-import lucky.loteria.games.model.User;
-import lucky.loteria.games.model.redis.ConfigurationRedis;
-import lucky.loteria.games.services.game_core.DataResults;
-import lucky.loteria.games.services.game_instance.GameLucky;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class GameLuckyTest {
@@ -39,9 +29,9 @@ public class GameLuckyTest {
 //            HashMap<String, Double> money = new HashMap<>();
 //            while (i <= total) {
 //                Bet bet = createBet(table);
-//                DataResults dataResults = gameLucky.createRandomResult(table, bet, configurationRedis, "");
+//                DataResults dataResults = gameLucky.createRandomResult(table, bet, configurationRedis);
 //                results.merge(dataResults.getKey(), 1, Integer::sum);
-////                totalUserWinAll += dataResults.getResult().getPrize() * 1000;
+//                totalUserWinAll += dataResults.getResult().getPrize() * 1000;
 //                i++;
 //            }
 //            List<String> keys = List.of("F", "I", "V", "E", "8");

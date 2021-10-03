@@ -1,7 +1,11 @@
 package lucky.loteria.games.utils;
 
 import com.google.gson.Gson;
-import com.squareup.okhttp.*;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 import io.sentry.Sentry;
 import lucky.loteria.games.external_dto.request.BetDataRequest;
 import lucky.loteria.games.external_dto.request.TransferBalanceRequest;
@@ -17,7 +21,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ExternalRequestUtils {
     public static Logger logger = LoggerFactory.getLogger(ExternalRequestUtils.class.getName());
-    public static Object makeRequest(String urlStr,  String action, String parameters, Type className) {
+
+    public static Object makeRequest(String urlStr, String action, String parameters, Type className) {
         Sentry.getContext().addExtra("requestServiceData", parameters);
         Sentry.getContext().addExtra("urlService", urlStr);
         Sentry.getContext().addExtra("actionService", action);
@@ -51,7 +56,7 @@ public class ExternalRequestUtils {
                 Sentry.capture("Call wallet error: " + result);
                 return null;
             }
-            if (className == null ) {
+            if (className == null) {
                 String result = response.body().string();
                 Sentry.getContext().addExtra("responseService", result);
                 response.body().close();
@@ -70,7 +75,7 @@ public class ExternalRequestUtils {
         return null;
     }
 
-    public static Object request(String urlStr,  String action, String parameters, Type className) {
+    public static Object request(String urlStr, String action, String parameters, Type className) {
         Sentry.getContext().addExtra("requestServiceData", parameters);
         Sentry.getContext().addExtra("urlService", urlStr);
         Sentry.getContext().addExtra("actionService", action);
@@ -100,7 +105,7 @@ public class ExternalRequestUtils {
 
             String result = response.body().string();
             Sentry.getContext().addExtra("responseService", result);
-            if (response.code() == 500){
+            if (response.code() == 500) {
                 logger.error(result);
                 logger.error(response.body().toString());
             }
@@ -123,7 +128,7 @@ public class ExternalRequestUtils {
         TransferBalanceRequest transferBalanceRequest = new TransferBalanceRequest();
         transferBalanceRequest.setToken("d83f63dc6c47b2f997b738ba6d5c73f5");
         transferBalanceRequest.setAmount(10000);
-        transferBalanceRequest.setTransaction_id(Math.random()+"");
+        transferBalanceRequest.setTransaction_id(Math.random() + "");
 
         BetDataRequest betDataRequest = new BetDataRequest();
         betDataRequest.setGame_id("111");

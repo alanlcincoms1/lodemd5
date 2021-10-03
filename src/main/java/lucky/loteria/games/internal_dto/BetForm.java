@@ -12,6 +12,4 @@ public class BetForm {
 	private Integer tableId;
 	@NotBlank(message = "betAmount must not be blank!")
 	private Double betAmount;
-	@NotBlank(message = "round must not be blank!")
-	private String round;
 }
