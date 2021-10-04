@@ -9,8 +9,8 @@ public class RandomUtils {
     public static int randomNumber(int min, int max) {
         try {
             ArrayList<String> listAlgo = new ArrayList<>();
-//            listAlgo.add("NativePRNG");
-//            listAlgo.add("NativePRNGNonBlocking");
+            listAlgo.add("NativePRNG");
+            listAlgo.add("NativePRNGNonBlocking");
             listAlgo.add("SHA1PRNG");
             listAlgo.add("DEFAULT");
             int random = RandomUtils.randomNumberNormal(0, listAlgo.size() - 1);

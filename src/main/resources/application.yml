@@ -3,7 +3,7 @@ spring:
   profiles: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/lucky?useUnicode=yes&characterEncoding=UTF-8
+    url: jdbc:mysql://127.0.0.1:3306/lucky-dev?useUnicode=yes&characterEncoding=UTF-8
     username: daniel
     password: P@s$w0rd123!
   redis:
@@ -15,7 +15,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
 server:
-  port: 8089
+  port: 8090
 sentry:
   enabled: true
   environment: development
@@ -38,7 +38,7 @@ spring:
     hibernate:
       ddl-auto: update
 server:
-  port: 8089
+  port: 8090
 sentry:
   enabled: true
   environment: staging
@@ -61,7 +61,7 @@ spring:
     hibernate:
       ddl-auto: update
 server:
-  port: 8089
+  port: 8090
 sentry:
   enabled: true
   environment: production
