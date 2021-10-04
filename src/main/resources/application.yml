@@ -3,7 +3,7 @@ spring:
   profiles: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/lucky-dev?useUnicode=yes&characterEncoding=UTF-8
+    url: jdbc:mysql://127.0.0.1:3306/lucky_dev?useUnicode=yes&characterEncoding=UTF-8
     username: daniel
     password: P@s$w0rd123!
   redis:
@@ -28,7 +28,7 @@ spring:
   profiles: stag
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/lucky-staging?useUnicode=yes&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/lucky_staging?useUnicode=yes&characterEncoding=UTF-8
     username: root
     password:
   redis:
