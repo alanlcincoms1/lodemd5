@@ -1,9 +1,9 @@
 package lucky.loteria.games.services;
 
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import lucky.loteria.games.model.thirdparty.TicketBonus;
 import lucky.loteria.games.utils.ExternalRequestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -11,9 +11,10 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 
 @Service
+@RequiredArgsConstructor
 public class TicketBonusService {
-    @Autowired
-    Gson gson;
+
+    private final Gson gson;
 
     @Value(value = "${kafka-service.url}")
     private String kafKaServiceUrl;

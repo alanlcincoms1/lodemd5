@@ -1,10 +1,10 @@
 package lucky.loteria.games.controller;
 
 import io.sentry.Sentry;
+import lombok.RequiredArgsConstructor;
 import lucky.loteria.games.internal_dto.ToolForm;
 import lucky.loteria.games.model.Table;
 import lucky.loteria.games.repository.impl.TableRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,14 +17,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/")
 public class ToolController extends ExceptionHandle {
 
-    @Autowired
-    private TableRepository tableRepository;
-
-    public ToolController() {
-    }
+    private final TableRepository tableRepository;
 
     @PostMapping(value = "tool")
     @ResponseBody

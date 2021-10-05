@@ -2,6 +2,7 @@ package lucky.loteria.games.services;
 
 import com.google.gson.Gson;
 import io.sentry.Sentry;
+import lombok.RequiredArgsConstructor;
 import lucky.loteria.games.exception.WalletException;
 import lucky.loteria.games.external_dto.request.BetDataRequest;
 import lucky.loteria.games.external_dto.request.TransferBalanceRequest;
@@ -9,12 +10,18 @@ import lucky.loteria.games.external_dto.response.UserBalanceUpdateDto;
 import lucky.loteria.games.external_dto.response.UserBalanceUpdateResponseDto;
 import lucky.loteria.games.external_dto.response.UserTokenDto;
 import lucky.loteria.games.external_dto.response.UserTokenResponseDto;
-import lucky.loteria.games.model.*;
+import lucky.loteria.games.model.Bet;
+import lucky.loteria.games.model.SessionLog;
+import lucky.loteria.games.model.Table;
+import lucky.loteria.games.model.Transaction;
+import lucky.loteria.games.model.User;
 import lucky.loteria.games.model.redis.UserRedis;
-import lucky.loteria.games.repository.impl.*;
+import lucky.loteria.games.repository.impl.SessionLogRepository;
+import lucky.loteria.games.repository.impl.TableRepository;
+import lucky.loteria.games.repository.impl.UserRedisRepository;
+import lucky.loteria.games.repository.impl.UserRepository;
 import lucky.loteria.games.utils.ExternalRequestUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -26,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     @Value("${auth_url}")
     private String verifyTokenURL;
@@ -39,43 +47,25 @@ public class UserService {
     @Value("${prefix_game}")
     private String prefixGame;
 
-    @Autowired
-    private UserRedisRepository userRedisRepository;
 
-    @Autowired
-    private SessionLogRepository sessionLogRepository;
+    private final UserRedisRepository userRedisRepository;
 
-    @Autowired
-    private TableRepository tableRepository;
+    private final SessionLogRepository sessionLogRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final TableRepository tableRepository;
 
-    @Autowired
-    private Gson gson;
+    private final UserRepository userRepository;
+
+    private final Gson gson;
 
     public static int DONGIA_VND = 1000;
 
     public UserTokenResponseDto auth(String token, HttpServletRequest httpServletRequest) {
-        UserTokenResponseDto userTokenResponseDto = null;
-        userTokenResponseDto = (UserTokenResponseDto) ExternalRequestUtils.makeRequest(
-                verifyTokenURL + token,
-                "GET",
-                null,
-                UserTokenResponseDto.class
-        );
-
-        if (userTokenResponseDto == null) {
-            return null;
-        }
-        if (userTokenResponseDto.getData() == null || userTokenResponseDto.getData().isEmpty()) {
-            return userTokenResponseDto;
-        }
+        UserTokenResponseDto userTokenResponseDto = getUser(token);
         UserTokenDto userTokenDto = userTokenResponseDto.getData().get(0);
         UserRedis userRedis = new UserRedis();
         BeanUtils.copyProperties(userTokenDto, userRedis);
         userRedis.setToken(token);
-
 
         // create User
         User user = userRepository.getUserByUidEquals(userRedis.getUid());
@@ -131,26 +121,42 @@ public class UserService {
         return userTokenResponseDto;
     }
 
+    public UserTokenResponseDto getUser(String token) {
+        UserTokenResponseDto userTokenResponseDto = createUserResponse();
+//        UserTokenResponseDto userTokenResponseDto = (UserTokenResponseDto) ExternalRequestUtils.makeRequest(
+//                verifyTokenURL + token,
+//                "GET",
+//                null,
+//                UserTokenResponseDto.class
+//        );
+//
+//        if (userTokenResponseDto == null || userTokenResponseDto.getData() == null || userTokenResponseDto.getData().isEmpty()) {
+//            return null;
+//        }
+        return userTokenResponseDto;
+    }
+
+    public UserRedis getUserAndSaveToRedis(String token) {
+        Optional<UserRedis> userRedisOptional = userRedisRepository.findById(token);
+        UserRedis userRedis = new UserRedis();
+        if (userRedisOptional.isEmpty()) {
+            UserTokenResponseDto userTokenResponseDto = getUser(token);
+            UserTokenDto userTokenDto = userTokenResponseDto.getData().get(0);
+            BeanUtils.copyProperties(userTokenDto, userRedis);
+            userRedis.setToken(token);
+            userRedisRepository.save(userRedis);
+        } else {
+            userRedis = userRedisOptional.get();
+        }
+
+        return userRedis;
+    }
+
     public UserRedis getUserByToken(String token, HttpServletRequest httpServletRequest) {
         Optional<UserRedis> userRedisOptional = userRedisRepository.findById(token);
         UserRedis userRedis = null;
         if (userRedisOptional.isEmpty()) {
-            UserTokenResponseDto userTokenResponseDto = createUserResponse();
-//            userTokenResponseDto = (UserTokenResponseDto) ExternalRequestUtils.makeRequest(
-//                    verifyTokenURL + token,
-//                    "GET",
-//                    null,
-//                    UserTokenResponseDto.class
-//            );
-//
-//            if (userTokenResponseDto == null || userTokenResponseDto.getData() == null || userTokenResponseDto.getData().isEmpty()) {
-//                return null;
-//            }
-            UserTokenDto userTokenDto = userTokenResponseDto.getData().get(0);
-            userRedis = new UserRedis();
-            BeanUtils.copyProperties(userTokenDto, userRedis);
-            userRedis.setToken(token);
-
+            userRedis = getUserAndSaveToRedis(token);
             // create User
             User user = userRepository.getUserByUidEquals(userRedis.getUid());
             if (user != null) {
@@ -173,7 +179,6 @@ public class UserService {
                 user.setUpdatedDate(new Date());
             }
             userRepository.save(user);
-            userRedisRepository.save(userRedis);
         } else {
             userRedis = userRedisOptional.get();
         }

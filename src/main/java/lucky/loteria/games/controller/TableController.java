@@ -1,6 +1,7 @@
 package lucky.loteria.games.controller;
 
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import lucky.loteria.games.model.Table;
 import lucky.loteria.games.repository.impl.TableRepository;
 import org.springframework.http.HttpStatus;
@@ -13,16 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/")
 public class TableController extends ExceptionHandle {
 
     private final TableRepository tableRepository;
     private final Gson gson;
-
-    public TableController(TableRepository tableRepository, Gson gson) {
-        this.tableRepository = tableRepository;
-        this.gson = gson;
-    }
 
     @GetMapping(value = "tables")
     @ResponseBody

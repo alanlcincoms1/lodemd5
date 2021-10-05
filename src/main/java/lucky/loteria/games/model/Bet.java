@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 
 @Entity(name = "bet")
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class Bet extends BaseEntity {
 
     public enum BetStatus {
@@ -55,6 +55,8 @@ public class Bet extends BaseEntity {
     private Double amount;
     private Double amountLose;
     private Double amountWin;
+    private int reel;
+    private Double prize;
     private String status;
     private String agentString;
     private Integer isRunning;
@@ -66,6 +68,7 @@ public class Bet extends BaseEntity {
     public Double getAmountWin() {
         return amountWin == null ? 0.0 : amountWin;
     }
+
     public Double getAmount() {
         return amount == null ? 0.0 : amount;
     }

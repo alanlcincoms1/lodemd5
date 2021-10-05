@@ -13,6 +13,11 @@ import java.util.List;
 @Repository
 public interface BetRepository extends JpaRepository<Bet, Integer> {
 
+    @Query(value = "select * from bet where username = :userName order by prize desc limit :limit",
+            nativeQuery = true
+    )
+    List<Bet> findTopByUsername(String userName, int limit);
+
     @Query(value = "select * from bet where status in :statuses and is_running = :isRunning limit 500",
             nativeQuery = true
     )

@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class BetResponse {
-
     Integer reel;
     Double prize;
     String username;

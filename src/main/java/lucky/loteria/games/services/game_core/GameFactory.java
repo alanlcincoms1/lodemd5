@@ -5,9 +5,6 @@ import lucky.loteria.games.services.game_instance.GameLucky;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Created by rajeevkumarsingh on 02/08/17.
- */
 @Component
 public class GameFactory {
     @Autowired

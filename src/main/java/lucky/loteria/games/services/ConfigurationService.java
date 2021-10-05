@@ -1,22 +1,21 @@
 package lucky.loteria.games.services;
 
+import lombok.RequiredArgsConstructor;
 import lucky.loteria.games.model.Configuration;
 import lucky.loteria.games.model.redis.ConfigurationRedis;
 import lucky.loteria.games.repository.impl.ConfigurationRedisRepository;
 import lucky.loteria.games.repository.impl.ConfigurationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ConfigurationService {
-    @Autowired
-    ConfigurationRepository configurationRepository;
+    private final ConfigurationRepository configurationRepository;
 
-    @Autowired
-    ConfigurationRedisRepository configurationRedisRepository;
+    private final ConfigurationRedisRepository configurationRedisRepository;
 
     public ConfigurationRedis getConfig(long tableId) {
         Optional<ConfigurationRedis> configuration = configurationRedisRepository.findById(tableId);

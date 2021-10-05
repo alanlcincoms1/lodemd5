@@ -1,18 +1,14 @@
 package lucky.loteria.games.controller;
 
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import lucky.loteria.games.external_dto.response.LuckyTopResponse;
 import lucky.loteria.games.internal_dto.TopQuery;
 import lucky.loteria.games.model.ILuckyTop;
 import lucky.loteria.games.model.redis.UserRedis;
 import lucky.loteria.games.repository.impl.UserCollectRepository;
 import lucky.loteria.games.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,19 +21,17 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/collects")
 public class UserCollectController {
     private static final int MAX_LIMIT = 60;
     public static final int MAX_PAGE = 20;
 
-    @Autowired
-    Gson gson;
+    private final Gson gson;
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    UserCollectRepository userCollectRepository;
+    private final UserCollectRepository userCollectRepository;
 
     @GetMapping(value = "/{token}/{tableId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getCollect(@PathVariable String token, @PathVariable long tableId, HttpServletRequest httpServletRequest) {

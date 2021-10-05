@@ -1,18 +1,22 @@
 package lucky.loteria.games.services;
 
 import io.sentry.Sentry;
+import lombok.RequiredArgsConstructor;
+import lucky.loteria.games.external_dto.response.BetResponseDto;
 import lucky.loteria.games.external_dto.response.UserBalanceUpdateDto;
+import lucky.loteria.games.external_dto.response.UserTokenResponseDto;
+import lucky.loteria.games.mapper.BetMapper;
 import lucky.loteria.games.model.Bet;
 import lucky.loteria.games.model.Transaction;
 import lucky.loteria.games.repository.impl.BetRepository;
 import lucky.loteria.games.repository.impl.TransactionRepository;
-import lucky.loteria.games.services.game_core.GameFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BetService {
 
     private final BetRepository betRepository;
@@ -21,10 +25,12 @@ public class BetService {
 
     private final UserService userService;
 
-    public BetService(BetRepository betRepository, TransactionRepository transactionRepository, GameFactory gameFactory, UserService userService) {
-        this.betRepository = betRepository;
-        this.transactionRepository = transactionRepository;
-        this.userService = userService;
+    private final BetMapper betMapper;
+
+    public List<BetResponseDto> getTopBet(String token) {
+        UserTokenResponseDto userTokenResponseDto = userService.getUser(token);
+        List<Bet> lstBet = betRepository.findTopByUsername(userTokenResponseDto.getData().get(0).getUsername(), 100);
+        return betMapper.mapToResponse(lstBet);
     }
 
     public void updateBetsAfterResult(String[] status) {

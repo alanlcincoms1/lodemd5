@@ -2,7 +2,8 @@ package lucky.loteria.games.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.sentry.Sentry;
+import lombok.RequiredArgsConstructor;
+import lucky.loteria.games.external_dto.response.BetResponseDto;
 import lucky.loteria.games.external_dto.response.BetResponse;
 import lucky.loteria.games.internal_dto.BetForm;
 import lucky.loteria.games.internal_dto.BetHistoriesForm;
@@ -24,13 +25,25 @@ import lucky.loteria.games.services.game_core.DataResults;
 import lucky.loteria.games.services.game_core.GameAbstract;
 import lucky.loteria.games.services.game_core.GameFactory;
 import lucky.loteria.games.utils.GameUtils;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.websocket.server.PathParam;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +52,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/")
 public class BetController extends ExceptionHandle {
     private static final int MAX_LIMIT = 60;
@@ -64,25 +78,9 @@ public class BetController extends ExceptionHandle {
 
     private static final Gson serializerNull = new GsonBuilder().serializeNulls().create();
 
-    public BetController(BetRepository betRepository, TransactionRepository transactionRepository,
-                         UserService userService, UserRedisRepository userRedisRepository,
-                         TableRepository tableRepository, Gson gson, GameFactory gameFactory,
-                         BetService betService, ConfigurationService configurationService) {
-        this.betRepository = betRepository;
-        this.transactionRepository = transactionRepository;
-        this.userService = userService;
-        this.userRedisRepository = userRedisRepository;
-        this.tableRepository = tableRepository;
-        this.gson = gson;
-        this.gameFactory = gameFactory;
-        this.betService = betService;
-        this.configurationService = configurationService;
-    }
-
     @PostMapping(value = "bet", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Object> bet(@RequestBody BetForm betForm, HttpServletRequest httpServletRequest) {
-        Sentry.getContext().addExtra("requestAPI", betForm);
         UserRedis user = userService.getUserByToken(betForm.getToken(), httpServletRequest);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vui lòng đăng nhập để quay!");
@@ -106,6 +104,12 @@ public class BetController extends ExceptionHandle {
                 .prize(dataResults.getResult().getPrize())
                 .build();
         return new ResponseEntity<>(serializerNull.toJson(betResponse), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "bet/gettop", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<BetResponseDto> getTopBet(@PathParam("token") String token) {
+        List<BetResponseDto> responseList = betService.getTopBet(token);
+        return responseList;
     }
 
     private void callServiceAfterBet(Bet bet) {

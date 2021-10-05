@@ -31,7 +31,7 @@ public class GameLucky extends GameAbstract {
     @Override
     public DataResults createRandomResult(Table table, Bet bet, ConfigurationRedis configurationRedis) {
         HashMap<String, Config> collection = configurationRedis.getCollection();
-        int num = RandomUtils.randomNumber(1, configurationRedis.getTotalDistribution());
+        int num = RandomUtils.randomNumber(configurationRedis.getStart(), configurationRedis.getTotalDistribution());
         String[] keys = configurationRedis.getEvent();
         String k = "";
         HashMap<String, Config> result = new HashMap<>();
@@ -72,6 +72,8 @@ public class GameLucky extends GameAbstract {
             bet.setAmountLose(0.0);
             userCollect.setTotalAmountWin(userCollect.getTotalAmountWin() + bet.getAmountWin() * Constance.DONGIA_VND);
         }
+        bet.setPrize(result.getPrize());
+        bet.setReel(result.getReel());
         userCollectRepository.save(userCollect);
         bet.setUpdatedDate(new Date());
     }

@@ -24,6 +24,7 @@ public class Configuration extends BaseEntity {
     Integer totalDistribution;
     String event;
     String alphabetEvent;
+    Integer start;
 
     public HashMap<String, Config> getCollection() {
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -49,6 +50,7 @@ public class Configuration extends BaseEntity {
         c.setTotalDistribution(this.totalDistribution);
         c.setEvent(this.event);
         c.setAlphabetEvent(this.alphabetEvent);
+        c.setStart(this.start);
         return c;
     }
 

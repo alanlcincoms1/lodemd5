@@ -1,11 +1,11 @@
 package lucky.loteria.games.controller;
 
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import lucky.loteria.games.model.Configuration;
 import lucky.loteria.games.repository.impl.ConfigurationRedisRepository;
 import lucky.loteria.games.services.ConfigurationService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/configs")
 public class ConfigurationController {
-    @Autowired
-    Gson gson;
+    private final Gson gson;
 
-    @Autowired
-    ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
 
-    @Autowired
-    ConfigurationRedisRepository configurationRedisRepository;
+    private final ConfigurationRedisRepository configurationRedisRepository;
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getConfigs() {

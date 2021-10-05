@@ -1,11 +1,11 @@
 package lucky.loteria.games.controller;
 
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import lucky.loteria.games.model.redis.UserRedis;
 import lucky.loteria.games.model.thirdparty.TicketBonus;
 import lucky.loteria.games.services.TicketBonusService;
 import lucky.loteria.games.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,16 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/free/spin")
 public class FreeSpinController {
-    @Autowired
-    TicketBonusService ticketBonusService;
+    private final TicketBonusService ticketBonusService;
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    Gson gson;
+    private final Gson gson;
 
     @GetMapping(value = "/{token}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

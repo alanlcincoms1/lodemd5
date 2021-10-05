@@ -21,6 +21,7 @@ public class ConfigurationRedis {
     Integer totalDistribution;
     String event;
     String alphabetEvent;
+    Integer start;
 
     public HashMap<String, Config> getCollection() {
         Map<String, Config> map = new HashMap<>();
