@@ -36,6 +36,8 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
     implementation 'org.mapstruct:mapstruct:1.3.0.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.3.0.Final'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+
 }
 compileJava {
     // if you need to configure mapstruct component model

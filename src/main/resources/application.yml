@@ -15,7 +15,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
 server:
-  port: 8090
+  port: 8089
 sentry:
   enabled: true
   environment: development
