@@ -60,6 +60,12 @@ public class UserService {
 
     public UserTokenResponseDto auth(String token, HttpServletRequest httpServletRequest) {
         UserTokenResponseDto userTokenResponseDto = getUser(token);
+        if (userTokenResponseDto == null) {
+            return null;
+        }
+        if (userTokenResponseDto.getData() == null || userTokenResponseDto.getData().isEmpty()) {
+            return userTokenResponseDto;
+        }
         UserTokenDto userTokenDto = userTokenResponseDto.getData().get(0);
         UserRedis userRedis = new UserRedis();
         BeanUtils.copyProperties(userTokenDto, userRedis);
@@ -80,7 +86,6 @@ public class UserService {
             user.setAgentCodeId(userRedis.getAgency_id() + "");
             user.setMemberId(userRedis.getMember_id());
             user.setFullName(userRedis.getFullname());
-            user.setUsername(userRedis.getUsername());
             user.setBalance(userRedis.getMain_balance() + userRedis.getExtra_balance());
             user.setStatus(userRedis.getStatus());
             user.setCreatedDate(new Date());
@@ -116,7 +121,6 @@ public class UserService {
         userTokenDto.setG_id("g_id1");
         userTokenDto.setUid("Uid1");
         userTokenDto.setMember_id("1");
-        userTokenDto.setUsername("daniel");
         userTokenDto.setLast_login(new Date());
         userTokenDto.setExpried(new Date());
         userTokenDto.setToken(token);
@@ -129,13 +133,13 @@ public class UserService {
     }
 
     public UserTokenResponseDto getUser(String token) {
-        UserTokenResponseDto userTokenResponseDto = createUserResponse(token);
-//        UserTokenResponseDto userTokenResponseDto = (UserTokenResponseDto) ExternalRequestUtils.makeRequest(
-//                verifyTokenURL + token,
-//                "GET",
-//                null,
-//                UserTokenResponseDto.class
-//        );
+//        UserTokenResponseDto userTokenResponseDto = createUserResponse(token);
+        UserTokenResponseDto userTokenResponseDto = (UserTokenResponseDto) ExternalRequestUtils.makeRequest(
+                verifyTokenURL + token,
+                "GET",
+                null,
+                UserTokenResponseDto.class
+        );
 
         if (userTokenResponseDto == null || userTokenResponseDto.getData() == null || userTokenResponseDto.getData().isEmpty()) {
             throw new ApplicationException(UserMessage.UNAUTHORIZED);
@@ -166,10 +170,15 @@ public class UserService {
         Optional<UserRedis> userRedisOptional = userRedisRepository.findById(token);
         UserRedis userRedis = null;
         if (userRedisOptional.isEmpty()) {
-            userRedis = getUserAndSaveToRedis(token);
-            if (userRedis == null) {
+            UserTokenResponseDto userTokenResponseDto = getUser(token);
+
+            if (userTokenResponseDto == null || userTokenResponseDto.getData() == null || userTokenResponseDto.getData().isEmpty()) {
                 return null;
             }
+            UserTokenDto userTokenDto = userTokenResponseDto.getData().get(0);
+            userRedis = new UserRedis();
+            BeanUtils.copyProperties(userTokenDto, userRedis);
+            userRedis.setToken(token);
             // create User
             User user = userRepository.getUserByUidEquals(userRedis.getUid());
             if (user != null) {
@@ -185,7 +194,6 @@ public class UserService {
                 user.setAgentCode(userRedis.getAgency_code());
                 user.setMemberId(userRedis.getMember_id());
                 user.setFullName(userRedis.getFullname());
-                user.setUsername(userRedis.getUsername());
                 user.setBalance(userRedis.getMain_balance() + userRedis.getExtra_balance());
                 user.setStatus(userRedis.getStatus());
                 user.setCreatedDate(new Date());
@@ -279,10 +287,10 @@ public class UserService {
         double amount = 0.0;
         switch (status) {
             case "WIN":
-                amount = bet.getAmount() + bet.getAmountWin();
+                amount = bet.getAmountWin();
                 break;
             case "LOSE":
-                amount = bet.getAmount() + bet.getAmountLose();
+                amount = bet.getAmountLose();
                 break;
             case "BET":
                 amount = bet.getAmount();
@@ -300,7 +308,7 @@ public class UserService {
         betDataRequest.setGame_round_id(table.toString());
         betDataRequest.setGame_ticket_id(bet.getId().toString());
         betDataRequest.setGame_ticket_status(action);
-        betDataRequest.setGame_winlost((amount - bet.getAmount()) * DONGIA_VND);
+        betDataRequest.setGame_winlost(amount * DONGIA_VND);
         betDataRequest.setGame_stake(bet.getAmount() * DONGIA_VND);
 
         transferBalanceRequest.setData(betDataRequest);

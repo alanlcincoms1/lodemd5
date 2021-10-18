@@ -47,23 +47,16 @@ public class Bet extends BaseEntity {
 
     private String ip;
     private String uid;
-    private Integer agentId;
     private String memberId;
     private long tableId;
-    private String betType;
-    private String betTypeResult;
     private Double amount;
     private Double amountLose;
     private Double amountWin;
     private int reel;
     private Double prize;
     private String status;
-    private String agentString;
     private Integer isRunning;
-    private int betRate;
-    private Boolean isCollected = false;
-    private String alphabet;
-    private String username;
+    private String fullname;
 
     public Double getAmountWin() {
         return amountWin == null ? 0.0 : amountWin;

@@ -23,7 +23,6 @@ public class Configuration extends BaseEntity {
     String collection;
     Integer totalDistribution;
     String event;
-    String alphabetEvent;
     Integer start;
 
     public HashMap<String, Config> getCollection() {
@@ -49,7 +48,6 @@ public class Configuration extends BaseEntity {
         c.setCollection(this.collection);
         c.setTotalDistribution(this.totalDistribution);
         c.setEvent(this.event);
-        c.setAlphabetEvent(this.alphabetEvent);
         c.setStart(this.start);
         return c;
     }

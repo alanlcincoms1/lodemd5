@@ -4,12 +4,11 @@ import bet.lucky.game.constance.Constance;
 import bet.lucky.game.model.Bet;
 import bet.lucky.game.model.Config;
 import bet.lucky.game.model.Table;
-import bet.lucky.game.model.redis.ConfigurationRedis;
 import bet.lucky.game.model.UserCollect;
+import bet.lucky.game.model.redis.ConfigurationRedis;
 import bet.lucky.game.repository.impl.UserCollectRepository;
 import bet.lucky.game.services.game_core.DataResults;
 import bet.lucky.game.services.game_core.GameAbstract;
-import bet.lucky.game.utils.GameUtils;
 import bet.lucky.game.utils.RandomUtils;
 import org.springframework.stereotype.Service;
 
@@ -51,30 +50,50 @@ public class GameLucky extends GameAbstract {
     }
 
 
-    public void updateBetAfterResult(Bet bet, DataResults dataResults, String username, Double betAmount) {
+    public void updateBetAfterResult(Table table, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
         UserCollect userCollect = userCollectRepository.findByTableIdAndUid(bet.getTableId(), bet.getUid());
+        double jackPotAmount = getPercentBetAmount(betAmount, table.getJackpotPercent());
         if (userCollect == null) {
             userCollect = new UserCollect();
             userCollect.setTotalAmountWin(0.0);
-            userCollect.setUsername(GameUtils.convertUS(username));
+            userCollect.setFullname(fullname);
             userCollect.setTableId(bet.getTableId());
             userCollect.setUid(bet.getUid());
+            userCollect.setJackpot(jackPotAmount + table.getInitJackpotAmount());
+        } else {
+            userCollect.setJackpot(jackPotAmount + (null == userCollect.getJackpot() ? 0 : userCollect.getJackpot()));
         }
         Config result = dataResults.getResult();
 
-        if (result.isLose()) {
-            bet.setStatus(Bet.BetStatus.LOSE.name());
-            bet.setAmountLose(betAmount * result.getPrize());
-            bet.setAmountWin(0.0);
-        } else {
+        double amount = (betAmount * result.getPrize()) - betAmount;
+        if (amount > 0) {
             bet.setStatus(Bet.BetStatus.WIN.name());
-            bet.setAmountWin(betAmount * result.getPrize());
+            bet.setAmountWin(amount);
             bet.setAmountLose(0.0);
-            userCollect.setTotalAmountWin(userCollect.getTotalAmountWin() + bet.getAmountWin() * Constance.DONGIA_VND);
+            userCollect.setTotalAmountWin(userCollect.getTotalAmountWin() + amount * Constance.DONGIA_VND);
+        } else {
+            bet.setStatus(Bet.BetStatus.LOSE.name());
+            bet.setAmountLose(amount);
+            bet.setAmountWin(0.0);
         }
+
+//        if (result.isLose()) {
+//            bet.setStatus(Bet.BetStatus.LOSE.name());
+//            bet.setAmountLose(betAmount * result.getPrize());
+//            bet.setAmountWin(0.0);
+//        } else {
+//            bet.setStatus(Bet.BetStatus.WIN.name());
+//            bet.setAmountWin(betAmount * result.getPrize());
+//            bet.setAmountLose(0.0);
+//            userCollect.setTotalAmountWin(userCollect.getTotalAmountWin() + bet.getAmountWin() * Constance.DONGIA_VND);
+//        }
         bet.setPrize(result.getPrize());
         bet.setReel(result.getReel());
         userCollectRepository.save(userCollect);
         bet.setUpdatedDate(new Date());
+    }
+
+    private static double getPercentBetAmount(double betAmount, double percent) {
+        return (betAmount / 100) * percent;
     }
 }

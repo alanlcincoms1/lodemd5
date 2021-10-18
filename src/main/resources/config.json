@@ -44,12 +44,12 @@
   "H": {
     "reel": 2,
     "start": 968750000,
-    "distribution": 948375000,
+    "distribution": 984375000,
     "prize": 5
   },
   "I": {
     "reel": 3,
-    "start": 948375000,
+    "start": 984375000,
     "distribution": 989481209,
     "prize": 2
   },

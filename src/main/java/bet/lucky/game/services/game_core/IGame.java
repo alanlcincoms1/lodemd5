@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service;
 public interface IGame {
     DataResults createRandomResult(Table table, Bet bet, ConfigurationRedis configurationRedis);
 
-    void updateBetAfterResult(Bet bet, DataResults dataResults, String username, Double betAmount);
+    void updateBetAfterResult(Table table, Bet bet, DataResults dataResults, String username, Double betAmount);
 }

@@ -34,10 +34,10 @@ public class UserController {
         UserTokenResponseDto user = userService.auth(authForm.getToken(), httpServletRequest);
         try {
             if (user.getData() != null && user.getData().size() > 0) {
-                String username = user.getData().get(0).getUsername();
-                int index = username.indexOf("@");
+                String fullname = user.getData().get(0).getFullname();
+                int index = fullname.indexOf("@");
                 if (index > 0) {
-                    user.getData().get(0).setUsername(username.substring(0, index));
+                    user.getData().get(0).setFullname(fullname.substring(0, index));
                 }
             }
         } catch (Exception e) {

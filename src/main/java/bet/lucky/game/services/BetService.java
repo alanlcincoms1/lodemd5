@@ -2,7 +2,8 @@ package bet.lucky.game.services;
 
 import bet.lucky.game.exception.ApplicationException;
 import bet.lucky.game.exception.message.UserMessage;
-import bet.lucky.game.external_dto.response.BetResponseDto;
+import bet.lucky.game.external_dto.response.BetTopResponse;
+import bet.lucky.game.model.BetTop;
 import bet.lucky.game.external_dto.response.UserBalanceUpdateDto;
 import bet.lucky.game.external_dto.response.UserTokenResponseDto;
 import bet.lucky.game.mapper.BetMapper;
@@ -14,6 +15,7 @@ import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,13 +31,18 @@ public class BetService {
 
     private final BetMapper betMapper;
 
-    public List<BetResponseDto> getTopBet(String token) {
+    public List<BetTopResponse> findTopBet(String token) {
         UserTokenResponseDto userTokenResponseDto = userService.getUser(token);
         if (userTokenResponseDto == null) {
             throw new ApplicationException(UserMessage.UNAUTHORIZED);
         }
-        List<Bet> lstBet = betRepository.findTopByUsername(userTokenResponseDto.getData().get(0).getUsername(), 100);
-        return betMapper.mapToResponse(lstBet);
+
+        List<BetTopResponse> listResponse = new ArrayList<>();
+        List<BetTop> lstBet = betRepository.getTopBet();
+        for (BetTop bet : lstBet) {
+            listResponse.add(BetTopResponse.builder().fullname(bet.getFullname()).amount(bet.getPrize() * bet.getAmount()).build());
+        }
+        return listResponse;
     }
 
     public void updateBetsAfterResult(String[] status) {

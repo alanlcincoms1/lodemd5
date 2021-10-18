@@ -19,7 +19,6 @@ public class User {
     private String memberId;
     private Integer agentId;
     private String fullName;
-    private String username;
     private Double balance;
     private String status;
 

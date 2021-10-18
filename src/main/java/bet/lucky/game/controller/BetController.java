@@ -3,7 +3,7 @@ package bet.lucky.game.controller;
 import bet.lucky.game.exception.ApplicationException;
 import bet.lucky.game.exception.message.BetMessage;
 import bet.lucky.game.external_dto.response.BetResponse;
-import bet.lucky.game.external_dto.response.BetResponseDto;
+import bet.lucky.game.external_dto.response.BetTopResponse;
 import bet.lucky.game.internal_dto.BetForm;
 import bet.lucky.game.internal_dto.BetHistoriesForm;
 import bet.lucky.game.model.*;
@@ -19,12 +19,14 @@ import bet.lucky.game.services.UserService;
 import bet.lucky.game.services.game_core.DataResults;
 import bet.lucky.game.services.game_core.GameAbstract;
 import bet.lucky.game.services.game_core.GameFactory;
-import bet.lucky.game.utils.GameUtils;
+import bet.lucky.game.utils.ResponseFactory;
 import bet.lucky.game.utils.Utilities;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,11 +65,9 @@ public class BetController {
 
     private final ConfigurationService configurationService;
 
-    private static final Gson serializerNull = new GsonBuilder().serializeNulls().create();
-
-    @PostMapping(value = "bet", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "bet", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Object> bet(@RequestBody BetForm betForm, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<BetResponse> bet(@RequestBody BetForm betForm, HttpServletRequest httpServletRequest) {
 
         UserRedis user = userService.getUserByToken(betForm.getToken(), httpServletRequest);
         DataResults dataResults = null;
@@ -78,11 +77,9 @@ public class BetController {
 
             Bet bet = createBet(httpServletRequest, user, table, betForm.getBetAmount());
 
-//        callServiceAfterBet(bet);
-
             ConfigurationRedis configurationRedis = configurationService.getConfig(bet.getTableId());
             dataResults = gameAbstract.createRandomResult(table, bet, configurationRedis);
-            gameAbstract.updateBetAfterResult(bet, dataResults, user.getUsername(), betForm.getBetAmount());
+            gameAbstract.updateBetAfterResult(table, bet, dataResults, user.getFullname(), betForm.getBetAmount());
 
             betRepository.save(bet);
         } catch (Exception ex) {
@@ -91,44 +88,17 @@ public class BetController {
         }
 
         BetResponse betResponse = BetResponse.builder()
-                .username(user.getUsername())
+                .username(user.getFullname())
                 .reel(dataResults.getResult().getReel())
                 .prize(dataResults.getResult().getPrize())
                 .build();
-        return new ResponseEntity<>(serializerNull.toJson(betResponse), HttpStatus.OK);
+        return ResponseFactory.success(betResponse);
     }
 
     @GetMapping(value = "bet/gettop", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<BetResponseDto> getTopBet(@PathParam("token") String token) {
-        List<BetResponseDto> responseList = betService.getTopBet(token);
+    public List<BetTopResponse> getTopBet(@PathParam("token") String token) {
+        List<BetTopResponse> responseList = betService.findTopBet(token);
         return responseList;
-    }
-
-    private void callServiceAfterBet(Bet bet) {
-        betService.transactionBet(bet);
-    }
-
-    @GetMapping(value = "user-bet/histories", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<String> histories(@ModelAttribute BetHistoriesForm betHistoriesForm) {
-        if (betHistoriesForm.getLimit() > MAX_LIMIT) betHistoriesForm.setLimit(MAX_LIMIT);
-        if (betHistoriesForm.getPage() > MAX_PAGE) betHistoriesForm.setLimit(MAX_PAGE);
-        Pageable sortedByPriceDescNameAsc = PageRequest.of(betHistoriesForm.getPage(),
-                betHistoriesForm.getLimit(),
-                Sort.by("id").descending());
-        Page<Bet> bets = betRepository.findAllByTableIdAndStatusIn(
-                betHistoriesForm.getTableId(),
-                new String[]{Bet.BetStatus.DRAW.name(), Bet.BetStatus.WIN.name()},
-                sortedByPriceDescNameAsc);
-
-        if (!bets.hasContent()) return new ResponseEntity<>(gson.toJson(bets), HttpStatus.OK);
-
-        PageImpl result = new PageImpl<>(
-                bets.getContent().stream().map(b -> BetResponse.builder().username(GameUtils.convertUS(b.getUsername()))
-                        .prize(b.getAmountWin())
-                ).collect(Collectors.toList()),
-                sortedByPriceDescNameAsc, bets.getTotalElements());
-        return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
     }
 
     @GetMapping(value = "user-bet/openbet")
@@ -238,9 +208,7 @@ public class BetController {
         bet.setTableId(table.getId());
         bet.setAmount(betAmount);
         bet.setStatus(Bet.BetStatus.BET.name());
-        bet.setAgentString(httpServletRequest.getHeader("User-Agent"));
         bet.setIsRunning(Bet.RUNNING_STATUS.RUNNING.getValue());
-        bet.setUsername(user.getUsername());
         bet.setCreatedDate(new Date());
         betRepository.save(bet);
         return bet;

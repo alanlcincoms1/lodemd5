@@ -24,7 +24,7 @@ public class TableController {
     @GetMapping(value = "tables")
     @ResponseBody
     public ResponseEntity<Object> running() {
-        List<Table> tables = tableRepository.findTablesByStatusEqualsOrderByIndexOrderAsc(Table.TableStatus.ACTIVE.getValue());
+        List<Table> tables = tableRepository.findTablesByStatusEquals(Table.TableStatus.ACTIVE.getValue());
         return new ResponseEntity<>(gson.toJson(tables), HttpStatus.OK);
     }
 

@@ -17,7 +17,6 @@ public class UserTokenDto {
     private String g_id;
     private String uid;
     private String member_id;
-    private String username;
     private Date last_login;
     private Date expried;
     private String status;

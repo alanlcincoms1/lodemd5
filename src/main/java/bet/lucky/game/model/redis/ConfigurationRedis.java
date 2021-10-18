@@ -20,7 +20,6 @@ public class ConfigurationRedis {
     String collection;
     Integer totalDistribution;
     String event;
-    String alphabetEvent;
     Integer start;
 
     public HashMap<String, Config> getCollection() {

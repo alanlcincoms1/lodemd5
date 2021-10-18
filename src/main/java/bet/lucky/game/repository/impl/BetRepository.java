@@ -12,12 +12,12 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface BetRepository extends JpaRepository<Bet, Integer> {
+public interface BetRepository extends JpaRepository<Bet, Integer>, CustomBetRepository {
 
-    @Query(value = "select * from bet where username = :userName and status = 'WIN' order by prize desc limit :limit",
+    @Query(value = "select * from bet where uid = :uid and status = 'WIN' order by prize desc limit :limit",
             nativeQuery = true
     )
-    List<Bet> findTopByUsername(String userName, int limit);
+    List<Bet> findAllByUid(String uid, int limit);
 
     @Query(value = "select * from bet where status in :statuses and is_running = :isRunning limit 500",
             nativeQuery = true

@@ -28,11 +28,8 @@ public class Table extends BaseEntity {
     private String cheat;
     private String groupName;
     private String type;
-    private Integer indexOrder;
+    private Double jackpotPercent;
     private Double initJackpotAmount;
     private Integer status;
 
-    public String toString() {
-        return "";
-    }
 }
