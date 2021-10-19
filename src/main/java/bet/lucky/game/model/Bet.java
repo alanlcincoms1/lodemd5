@@ -4,8 +4,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
-@Entity(name = "bet")
+@Entity
+@Table(name = "bet")
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Bet extends BaseEntity {
@@ -47,7 +49,7 @@ public class Bet extends BaseEntity {
 
     private String ip;
     private String uid;
-    private String memberId;
+    private Long memberId;
     private long tableId;
     private Double amount;
     private Double amountLose;
@@ -57,6 +59,7 @@ public class Bet extends BaseEntity {
     private String status;
     private Integer isRunning;
     private String fullname;
+    private Integer agencyId;
 
     public Double getAmountWin() {
         return amountWin == null ? 0.0 : amountWin;

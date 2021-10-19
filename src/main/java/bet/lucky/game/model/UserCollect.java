@@ -5,9 +5,11 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Data
-@Entity(name = "user_collects")
+@Entity
+@Table(name = "user_collects")
 @EqualsAndHashCode(callSuper = false)
 public class UserCollect extends BaseEntity {
     private long tableId;

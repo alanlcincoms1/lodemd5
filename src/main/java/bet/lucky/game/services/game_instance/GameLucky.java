@@ -3,7 +3,7 @@ package bet.lucky.game.services.game_instance;
 import bet.lucky.game.constance.Constance;
 import bet.lucky.game.model.Bet;
 import bet.lucky.game.model.Config;
-import bet.lucky.game.model.Table;
+import bet.lucky.game.model.Tables;
 import bet.lucky.game.model.UserCollect;
 import bet.lucky.game.model.redis.ConfigurationRedis;
 import bet.lucky.game.repository.impl.UserCollectRepository;
@@ -28,7 +28,7 @@ public class GameLucky extends GameAbstract {
     }
 
     @Override
-    public DataResults createRandomResult(Table table, Bet bet, ConfigurationRedis configurationRedis) {
+    public DataResults createRandomResult(Tables tables, Bet bet, ConfigurationRedis configurationRedis) {
         HashMap<String, Config> collection = configurationRedis.getCollection();
         int num = RandomUtils.randomNumber(configurationRedis.getStart(), configurationRedis.getTotalDistribution());
         String[] keys = configurationRedis.getEvent();
@@ -50,16 +50,16 @@ public class GameLucky extends GameAbstract {
     }
 
 
-    public void updateBetAfterResult(Table table, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
+    public void updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
         UserCollect userCollect = userCollectRepository.findByTableIdAndUid(bet.getTableId(), bet.getUid());
-        double jackPotAmount = getPercentBetAmount(betAmount, table.getJackpotPercent());
+        double jackPotAmount = getPercentBetAmount(betAmount, tables.getJackpotPercent());
         if (userCollect == null) {
             userCollect = new UserCollect();
             userCollect.setTotalAmountWin(0.0);
             userCollect.setFullname(fullname);
             userCollect.setTableId(bet.getTableId());
             userCollect.setUid(bet.getUid());
-            userCollect.setJackpot(jackPotAmount + table.getInitJackpotAmount());
+            userCollect.setJackpot(jackPotAmount + tables.getInitJackpotAmount());
         } else {
             userCollect.setJackpot(jackPotAmount + (null == userCollect.getJackpot() ? 0 : userCollect.getJackpot()));
         }
@@ -73,7 +73,7 @@ public class GameLucky extends GameAbstract {
             userCollect.setTotalAmountWin(userCollect.getTotalAmountWin() + amount * Constance.DONGIA_VND);
         } else {
             bet.setStatus(Bet.BetStatus.LOSE.name());
-            bet.setAmountLose(amount);
+            bet.setAmountLose(Math.abs(amount));
             bet.setAmountWin(0.0);
         }
 

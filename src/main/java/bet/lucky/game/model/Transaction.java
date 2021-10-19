@@ -7,9 +7,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Date;
 
-@Entity(name = "transaction")
+@Entity
+@Table(name = "transaction")
 @Data
 public class Transaction {
     public static enum TransactionStatus {
@@ -22,7 +24,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String memberId;
+    private Long memberId;
     private Double amount;
     private Double amountBefore;
     private Double amountAfter;

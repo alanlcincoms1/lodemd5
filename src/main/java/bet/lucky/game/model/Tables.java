@@ -4,11 +4,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
-@Entity(name = "tables")
+@Entity
+@Table(name = "tables")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Table extends BaseEntity {
+public class Tables extends BaseEntity {
 
     public enum TableStatus {
         ACTIVE(1),
@@ -27,9 +29,8 @@ public class Table extends BaseEntity {
     private String name;
     private String cheat;
     private String groupName;
-    private String type;
     private Double jackpotPercent;
     private Double initJackpotAmount;
     private Integer status;
-
+    private String gameId;
 }

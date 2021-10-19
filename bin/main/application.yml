@@ -1,0 +1,75 @@
+---
+spring:
+  profiles: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/lucky_dev?useUnicode=yes&characterEncoding=UTF-8
+    username: daniel
+    password: P@s$w0rd123!
+  redis:
+    host: 127.0.0.1
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+  main:
+    allow-bean-definition-overriding: true
+server:
+  port: 8089
+sentry:
+  enabled: true
+  environment: development
+prefix_game: s1_
+
+kafka-service:
+  url: http://localhost:8088/api/v1/ticket-bonus/
+---
+spring:
+  profiles: stag
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/lucky_staging?useUnicode=yes&characterEncoding=UTF-8
+    username: root
+    password:
+  redis:
+    host: localhost
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+server:
+  port: 8090
+sentry:
+  enabled: true
+  environment: staging
+kafka-service:
+  url: http://localhost:8088/api/v1/ticket-bonus/
+prefix_game: s1_
+
+---
+spring:
+  profiles: live
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/lucky?useUnicode=yes&characterEncoding=UTF-8
+    username: msuser
+    password: zkankhl1ha
+  redis:
+    host: localhost
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+server:
+  port: 8090
+sentry:
+  enabled: true
+  environment: production
+is_running_bot: 0
+auth_url: http://api-techplay.vinmic.com/gamems/v1/agency/verifytoken/
+update_balance_url: http://api-techplay.vinmic.com/gamems/v1/agency/transfer/
+prefix_game: s1_
+kafka-service:
+  url: http://127.0.0.1:8080/api/v1/ticket-bonus/
+public_socket: http://18.163.106.193:4680/broadcast
+private_socket_to_user: http://18.163.106.193:4680/send_to_client

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2021-10-18T16:01:07+0700",
+    date = "2021-10-19T10:32:15+0700",
     comments = "version: 1.3.0.Final, compiler: javac, environment: Java 11.0.11 (Oracle Corporation)"
 )
 @Component
@@ -41,7 +41,9 @@ public class BetMapperImpl implements BetMapper {
         betResponseDto.setUpdatedDate( bet.getUpdatedDate() );
         betResponseDto.setIp( bet.getIp() );
         betResponseDto.setUid( bet.getUid() );
-        betResponseDto.setMemberId( bet.getMemberId() );
+        if ( bet.getMemberId() != null ) {
+            betResponseDto.setMemberId( String.valueOf( bet.getMemberId() ) );
+        }
         betResponseDto.setTableId( bet.getTableId() );
         betResponseDto.setAmount( bet.getAmount() );
         betResponseDto.setAmountLose( bet.getAmountLose() );

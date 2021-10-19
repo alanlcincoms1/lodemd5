@@ -1,15 +1,23 @@
 package bet.lucky.game.services;
 
+import bet.lucky.game.constance.Constance;
 import bet.lucky.game.exception.ApplicationException;
 import bet.lucky.game.exception.WalletException;
 import bet.lucky.game.exception.message.UserMessage;
 import bet.lucky.game.external_dto.request.BetDataRequest;
+import bet.lucky.game.external_dto.request.Transfer;
 import bet.lucky.game.external_dto.request.TransferBalanceRequest;
+import bet.lucky.game.external_dto.response.UserBalanceDto;
+import bet.lucky.game.external_dto.response.UserBalanceResponseDto;
 import bet.lucky.game.external_dto.response.UserBalanceUpdateDto;
 import bet.lucky.game.external_dto.response.UserBalanceUpdateResponseDto;
 import bet.lucky.game.external_dto.response.UserTokenDto;
 import bet.lucky.game.external_dto.response.UserTokenResponseDto;
-import bet.lucky.game.model.*;
+import bet.lucky.game.model.Bet;
+import bet.lucky.game.model.SessionLog;
+import bet.lucky.game.model.Tables;
+import bet.lucky.game.model.Transaction;
+import bet.lucky.game.model.User;
 import bet.lucky.game.model.redis.UserRedis;
 import bet.lucky.game.repository.impl.SessionLogRepository;
 import bet.lucky.game.repository.impl.TableRepository;
@@ -39,12 +47,14 @@ public class UserService {
     @Value("${update_balance_url}")
     private String updateBalanceURL;
 
+    @Value("${get_balance_url}")
+    private String getBalanceURL;
+
     @Value("${bo_auth_url}")
     private String boAuthUrl;
 
     @Value("${prefix_game}")
     private String prefixGame;
-
 
     private final UserRedisRepository userRedisRepository;
 
@@ -55,8 +65,6 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final Gson gson;
-
-    public static int DONGIA_VND = 1000;
 
     public UserTokenResponseDto auth(String token, HttpServletRequest httpServletRequest) {
         UserTokenResponseDto userTokenResponseDto = getUser(token);
@@ -77,13 +85,11 @@ public class UserService {
             user.setStatus(userRedis.getStatus());
             user.setUpdatedDate(new Date());
             user.setBalance(userRedis.getMain_balance() + userRedis.getExtra_balance());
-            user.setAgentCode(userRedis.getAgency_code());
-            user.setAgentCodeId(userRedis.getAgency_id() + "");
+            user.setAgentId(userRedis.getAgency_id());
         } else {
             user = new User();
             user.setUid(userRedis.getUid());
-            user.setAgentCode(userRedis.getAgency_code());
-            user.setAgentCodeId(userRedis.getAgency_id() + "");
+            user.setAgentId(userRedis.getAgency_id());
             user.setMemberId(userRedis.getMember_id());
             user.setFullName(userRedis.getFullname());
             user.setBalance(userRedis.getMain_balance() + userRedis.getExtra_balance());
@@ -120,7 +126,7 @@ public class UserService {
         userTokenDto.setAff_id("aff_id1");
         userTokenDto.setG_id("g_id1");
         userTokenDto.setUid("Uid1");
-        userTokenDto.setMember_id("1");
+        userTokenDto.setMember_id(1L);
         userTokenDto.setLast_login(new Date());
         userTokenDto.setExpried(new Date());
         userTokenDto.setToken(token);
@@ -185,13 +191,11 @@ public class UserService {
                 user.setStatus(userRedis.getStatus());
                 user.setUpdatedDate(new Date());
                 user.setBalance(userRedis.getMain_balance() + userRedis.getExtra_balance());
-                user.setAgentCode(userRedis.getAgency_code());
-                user.setAgentCodeId(userRedis.getAgency_id() + "");
+                user.setAgentId(userRedis.getAgency_id());
             } else {
                 user = new User();
                 user.setUid(userRedis.getUid());
-                user.setAgentCodeId(userRedis.getAgency_id() + "");
-                user.setAgentCode(userRedis.getAgency_code());
+                user.setAgentId(userRedis.getAgency_id());
                 user.setMemberId(userRedis.getMember_id());
                 user.setFullName(userRedis.getFullname());
                 user.setBalance(userRedis.getMain_balance() + userRedis.getExtra_balance());
@@ -207,19 +211,31 @@ public class UserService {
         return userRedis;
     }
 
-    public UserBalanceUpdateDto updateBalanceWhenBet(String token, Bet bet, Transaction transaction, Table table) throws WalletException {
+    public UserBalanceDto getBalance(String token) {
+        UserBalanceResponseDto userBalanceResponseDto = (UserBalanceResponseDto) ExternalRequestUtils.makeRequest(
+                getBalanceURL + token,
+                "GET",
+                null,
+                UserBalanceResponseDto.class
+        );
+
+        if (userBalanceResponseDto == null || userBalanceResponseDto.getData() == null || userBalanceResponseDto.getData().isEmpty()) {
+            throw new ApplicationException(UserMessage.UNAUTHORIZED);
+        }
+        return userBalanceResponseDto.getData().get(0);
+    }
+
+    public UserBalanceUpdateDto updateBalanceWhenBet(String token, Bet bet, Transaction transaction, Tables tables) throws WalletException {
 
         TransferBalanceRequest transferBalanceRequest = createTransferBalanceRequest(
                 bet,
                 transaction,
-                table,
-                token,
+                tables,
                 Bet.BetStatus.BET.name()
         );
         List<TransferBalanceRequest> paramObject = new ArrayList<TransferBalanceRequest>();
         paramObject.add(transferBalanceRequest);
         String params = gson.toJson(paramObject);
-
 
         UserBalanceUpdateResponseDto userBalanceUpdateResponseDto = (UserBalanceUpdateResponseDto) ExternalRequestUtils.makeRequest(
                 updateBalanceURL,
@@ -240,17 +256,14 @@ public class UserService {
 
 
     public UserBalanceUpdateDto updateBalanceAfterBetResult(Bet bet, Transaction transaction) {
-        Table table = tableRepository.findTableByIdEquals(bet.getTableId());
+        Tables tables = tableRepository.findTableByIdEquals(bet.getTableId());
         TransferBalanceRequest transferBalanceRequest = createTransferBalanceRequest(
                 bet,
                 transaction,
-                table,
-                "",
+                tables,
                 bet.getStatus()
         );
-        List<TransferBalanceRequest> paramObject = new ArrayList<TransferBalanceRequest>();
-        paramObject.add(transferBalanceRequest);
-        String params = gson.toJson(paramObject);
+        String params = gson.toJson(transferBalanceRequest);
 
         UserBalanceUpdateResponseDto userBalanceUpdateResponseDto = (UserBalanceUpdateResponseDto) ExternalRequestUtils.makeRequest(
                 updateBalanceURL,
@@ -273,45 +286,46 @@ public class UserService {
     private TransferBalanceRequest createTransferBalanceRequest(
             Bet bet,
             Transaction transaction,
-            Table table,
-            String token,
+            Tables tables,
             String action
     ) {
         TransferBalanceRequest transferBalanceRequest = new TransferBalanceRequest();
-        if (token.length() > 0) {
-            transferBalanceRequest.setToken(token);
-        } else {
-            transferBalanceRequest.setUid(bet.getUid());
-        }
-        String status = bet.getStatus();
+        transferBalanceRequest.setAgency_id(bet.getAgencyId());
+
+        Transfer transfer = new Transfer();
+        transfer.setMember_id(bet.getMemberId());
+        transfer.setUid(bet.getUid());
         double amount = 0.0;
-        switch (status) {
-            case "WIN":
+        switch (action) {
+            case Constance.WIN:
                 amount = bet.getAmountWin();
+                transfer.setAction(Constance.WIN);
                 break;
-            case "LOSE":
+            case Constance.LOSE:
                 amount = bet.getAmountLose();
-                break;
-            case "BET":
-                amount = bet.getAmount();
+                transfer.setAction(Constance.COMMIT);
+                transfer.setOption(Constance.DEBIT);
                 break;
             default:
                 break;
         }
-        transferBalanceRequest.setAmount(amount * DONGIA_VND);
-        transferBalanceRequest.setTransaction_id(transaction.getTransactionHash() + "." + transaction.getId());
-        transferBalanceRequest.setAction(action);
+        transfer.setAmount(amount * Constance.DONGIA_VND);
+        transfer.setTransaction_id(transaction.getTransactionHash() + "." + transaction.getId());
 
         BetDataRequest betDataRequest = new BetDataRequest();
-        betDataRequest.setGame_id(prefixGame + table.getGroupName());
-        betDataRequest.setGame_name(table.getName());
-        betDataRequest.setGame_round_id(table.toString());
+        betDataRequest.setGame_id(prefixGame + tables.getGameId());
+        betDataRequest.setGame_name(tables.getName());
+        betDataRequest.setGame_round_id("1");
         betDataRequest.setGame_ticket_id(bet.getId().toString());
         betDataRequest.setGame_ticket_status(action);
-        betDataRequest.setGame_winlost(amount * DONGIA_VND);
-        betDataRequest.setGame_stake(bet.getAmount() * DONGIA_VND);
+        betDataRequest.setGame_winlost(amount * Constance.DONGIA_VND);
+        betDataRequest.setGame_stake(bet.getAmount() * Constance.DONGIA_VND);
+        betDataRequest.setIp(bet.getIp());
+        transfer.setData(betDataRequest);
 
-        transferBalanceRequest.setData(betDataRequest);
+        List<Transfer> lstTransfer = new ArrayList<>();
+        lstTransfer.add(transfer);
+        transferBalanceRequest.setTransfers(lstTransfer);
         return transferBalanceRequest;
     }
 

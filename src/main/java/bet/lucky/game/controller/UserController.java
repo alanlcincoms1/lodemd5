@@ -1,9 +1,11 @@
 package bet.lucky.game.controller;
 
 import bet.lucky.game.exception.WalletException;
+import bet.lucky.game.external_dto.response.UserBalanceDto;
 import bet.lucky.game.external_dto.response.UserTokenResponseDto;
 import bet.lucky.game.internal_dto.AuthForm;
 import bet.lucky.game.services.UserService;
+import bet.lucky.game.utils.ResponseFactory;
 import com.google.gson.Gson;
 import io.sentry.Sentry;
 import org.springframework.http.HttpStatus;
@@ -45,6 +47,14 @@ public class UserController {
         }
 
         return new ResponseEntity<>(gson.toJson(user), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "get-balance/{token}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<UserBalanceDto> getBalance(@PathVariable String token) throws WalletException {
+        Sentry.getContext().addExtra("request", token);
+        UserBalanceDto userBalanceDto = userService.getBalance(token);
+        return ResponseFactory.success(userBalanceDto);
     }
 
 }

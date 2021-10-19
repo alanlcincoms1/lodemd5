@@ -6,9 +6,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 @Data
 public class User {
     @Id
@@ -16,14 +18,11 @@ public class User {
     private Integer id;
 
     private String uid;
-    private String memberId;
+    private Long memberId;
     private Integer agentId;
     private String fullName;
     private Double balance;
     private String status;
-
-    private String agentCodeId;
-    private String agentCode;
     private Date createdDate;
     private Date updatedDate;
 }

@@ -1,0 +1,86 @@
+{
+  "A": {
+    "reel": 1,
+    "start": 0,
+    "distribution": 250000000,
+    "prize": 0
+  },
+  "B": {
+    "reel": 1,
+    "start": 250000000,
+    "distribution": 500000000,
+    "prize": 0.5
+  },
+  "C": {
+    "reel": 1,
+    "start": 500000000,
+    "distribution": 625000000,
+    "prize": 1
+  },
+  "D": {
+    "reel": 1,
+    "start": 625000000,
+    "distribution": 875000000,
+    "prize": 1.5
+  },
+  "E": {
+    "reel": 2,
+    "start": 875000000,
+    "distribution": 906250000,
+    "prize": 1.5
+  },
+  "F": {
+    "reel": 2,
+    "start": 906250000,
+    "distribution": 937500000,
+    "prize": 2
+  },
+  "G": {
+    "reel": 2,
+    "start": 937500000,
+    "distribution": 968750000,
+    "prize": 3
+  },
+  "H": {
+    "reel": 2,
+    "start": 968750000,
+    "distribution": 984375000,
+    "prize": 5
+  },
+  "I": {
+    "reel": 3,
+    "start": 984375000,
+    "distribution": 989481209,
+    "prize": 2
+  },
+  "J": {
+    "reel": 3,
+    "start": 989481209,
+    "distribution": 994587418,
+    "prize": 3
+  },
+  "K": {
+    "reel": 3,
+    "start": 994587418,
+    "distribution": 996629901,
+    "prize": 5
+  },
+  "L": {
+    "reel": 3,
+    "start": 996629901,
+    "distribution": 998672384,
+    "prize": 8
+  },
+  "M": {
+    "reel": 3,
+    "start": 998672384,
+    "distribution": 999693625,
+    "prize": 20
+  },
+  "N": {
+    "reel": 3,
+    "start": 999693625,
+    "distribution": 999999997,
+    "prize": 100
+  }
+}

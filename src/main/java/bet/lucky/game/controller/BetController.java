@@ -72,14 +72,14 @@ public class BetController {
         UserRedis user = userService.getUserByToken(betForm.getToken(), httpServletRequest);
         DataResults dataResults = null;
         try {
-            Table table = tableRepository.findTableByIdEquals(betForm.getTableId());
-            GameAbstract gameAbstract = gameFactory.getInstance(table.getGroupName());
+            Tables tables = tableRepository.findTableByIdEquals(betForm.getTableId());
+            GameAbstract gameAbstract = gameFactory.getInstance(tables.getGroupName());
 
-            Bet bet = createBet(httpServletRequest, user, table, betForm.getBetAmount());
+            Bet bet = createBet(httpServletRequest, user, tables, betForm.getBetAmount());
 
             ConfigurationRedis configurationRedis = configurationService.getConfig(bet.getTableId());
-            dataResults = gameAbstract.createRandomResult(table, bet, configurationRedis);
-            gameAbstract.updateBetAfterResult(table, bet, dataResults, user.getFullname(), betForm.getBetAmount());
+            dataResults = gameAbstract.createRandomResult(tables, bet, configurationRedis);
+            gameAbstract.updateBetAfterResult(tables, bet, dataResults, user.getFullname(), betForm.getBetAmount());
 
             betRepository.save(bet);
         } catch (Exception ex) {
@@ -200,16 +200,18 @@ public class BetController {
         return new ResponseEntity<>("Update is success -> trạng thái trước đó là: " + transactions.get(0).getNote(), HttpStatus.OK);
     }
 
-    private Bet createBet(HttpServletRequest httpServletRequest, UserRedis user, Table table, Double betAmount) {
+    private Bet createBet(HttpServletRequest httpServletRequest, UserRedis user, Tables tables, Double betAmount) {
         Bet bet = new Bet();
         bet.setIp(httpServletRequest.getRemoteAddr());
         bet.setUid(user.getUid());
         bet.setMemberId(user.getMember_id());
-        bet.setTableId(table.getId());
+        bet.setTableId(tables.getId());
         bet.setAmount(betAmount);
         bet.setStatus(Bet.BetStatus.BET.name());
         bet.setIsRunning(Bet.RUNNING_STATUS.RUNNING.getValue());
         bet.setCreatedDate(new Date());
+        bet.setFullname(user.getFullname());
+        bet.setAgencyId(user.getAgency_id());
         betRepository.save(bet);
         return bet;
     }

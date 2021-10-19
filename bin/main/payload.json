@@ -1,0 +1,22 @@
+{
+  "agency_id": 1,
+  "transfers": [
+    {
+      "member_id": 547759,
+      "uid": "ta88_devdaniel",
+      "amount": 10000,
+      "transaction_id": "c36b7f34-82b5-4977-8c42-314d6a8b43d5",
+      "action": "WIN",
+      "data": {
+        "game_name": "Lucky spin",
+        "game_id": "s1_10002",
+        "game_round_id": 1,
+        "game_ticket_id": 1,
+        "game_ticket_status": "WIN",
+        "game_stake": 10000,
+        "game_winlost": 10000,
+        "ip": "127.0.0.1"
+      }
+    }
+  ]
+}

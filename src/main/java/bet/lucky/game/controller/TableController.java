@@ -1,6 +1,6 @@
 package bet.lucky.game.controller;
 
-import bet.lucky.game.model.Table;
+import bet.lucky.game.model.Tables;
 import bet.lucky.game.repository.impl.TableRepository;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class TableController {
     @GetMapping(value = "tables")
     @ResponseBody
     public ResponseEntity<Object> running() {
-        List<Table> tables = tableRepository.findTablesByStatusEquals(Table.TableStatus.ACTIVE.getValue());
+        List<Tables> tables = tableRepository.findTablesByStatusEquals(Tables.TableStatus.ACTIVE.getValue());
         return new ResponseEntity<>(gson.toJson(tables), HttpStatus.OK);
     }
 

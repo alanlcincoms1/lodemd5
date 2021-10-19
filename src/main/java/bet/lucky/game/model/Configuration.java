@@ -9,11 +9,13 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
 
 @Entity
+@Table(name = "configuration")
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Configuration extends BaseEntity {
@@ -24,14 +26,6 @@ public class Configuration extends BaseEntity {
     Integer totalDistribution;
     String event;
     Integer start;
-
-    public HashMap<String, Config> getCollection() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        Gson gson = gsonBuilder.create();
-        Type objectHashMap = new TypeToken<HashMap<String, Config>>() {
-        }.getType();
-        return gson.fromJson(this.collection, objectHashMap);
-    }
 
     public HashMap<String, SimpleConfig> getSimpleCollection() {
         GsonBuilder gsonBuilder = new GsonBuilder();

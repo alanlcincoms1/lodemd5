@@ -3,7 +3,7 @@ package bet.lucky.game.controller;
 import bet.lucky.game.exception.ApplicationException;
 import bet.lucky.game.exception.message.UserMessage;
 import bet.lucky.game.external_dto.response.JackpotResponse;
-import bet.lucky.game.model.Table;
+import bet.lucky.game.model.Tables;
 import bet.lucky.game.model.UserCollect;
 import bet.lucky.game.model.redis.UserRedis;
 import bet.lucky.game.repository.impl.TableRepository;
@@ -38,8 +38,8 @@ public class UserCollectController {
         Double jackPot;
         UserCollect userCollect = userCollectRepository.findByUid(user.getUid());
         if (userCollect == null) {
-            Table table = tableRepository.findTableByIdEquals(tableId);
-            jackPot = table.getInitJackpotAmount();
+            Tables tables = tableRepository.findTableByIdEquals(tableId);
+            jackPot = tables.getInitJackpotAmount();
         } else {
             jackPot = userCollect.getJackpot();
         }

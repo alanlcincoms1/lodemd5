@@ -1,6 +1,6 @@
 package bet.lucky.game.services;
 
-import bet.lucky.game.model.Table;
+import bet.lucky.game.model.Tables;
 import bet.lucky.game.services.game_core.GameFactory;
 import com.google.gson.Gson;
 import com.squareup.okhttp.Response;
@@ -38,12 +38,12 @@ public class SocketService {
         sendData(socketData, publicSocket);
     }
 
-    public void sendJackpotBroadcast(String chanel, String event, Table table) {
+    public void sendJackpotBroadcast(String chanel, String event, Tables tables) {
 
         SocketCreateGameData socketData = new SocketCreateGameData();
         socketData.setChanel(chanel);
         socketData.setEvent(event);
-        socketData.setData(table);
+        socketData.setData(tables);
 
         sendData(socketData, publicSocket);
     }

@@ -2,12 +2,10 @@ package bet.lucky.game.external_dto.request;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TransferBalanceRequest {
-    public String token;
-    public String uid;
-    public double amount;
-    public String transaction_id;
-    public String action;
-    public BetDataRequest data;
+    public Integer agency_id;
+    List<Transfer> transfers;
 }
