@@ -113,33 +113,7 @@ public class UserService {
         return userTokenResponseDto;
     }
 
-    private UserTokenResponseDto createUserResponse(String token) {
-        UserTokenResponseDto userTokenResponseDto = new UserTokenResponseDto();
-        List<UserTokenDto> userTokenDtoList = new ArrayList<>();
-        UserTokenDto userTokenDto = new UserTokenDto();
-        userTokenDto.setMain_balance(100.0);
-        userTokenDto.setExtra_balance(100.0);
-        userTokenDto.setTime(100000L);
-        userTokenDto.setFullname("dev daniel");
-        userTokenDto.setAvatar("avatar-05");
-        userTokenDto.setGroup("group1");
-        userTokenDto.setAff_id("aff_id1");
-        userTokenDto.setG_id("g_id1");
-        userTokenDto.setUid("Uid1");
-        userTokenDto.setMember_id(1L);
-        userTokenDto.setLast_login(new Date());
-        userTokenDto.setExpried(new Date());
-        userTokenDto.setToken(token);
-        userTokenDto.setStatus("ACTIVE");
-        userTokenDto.setAgency_code("14");
-        userTokenDto.setAgency_id(1);
-        userTokenDtoList.add(userTokenDto);
-        userTokenResponseDto.setData(userTokenDtoList);
-        return userTokenResponseDto;
-    }
-
     public UserTokenResponseDto getUser(String token) {
-//        UserTokenResponseDto userTokenResponseDto = createUserResponse(token);
         UserTokenResponseDto userTokenResponseDto = (UserTokenResponseDto) ExternalRequestUtils.makeRequest(
                 verifyTokenURL + token,
                 "GET",
@@ -329,8 +303,5 @@ public class UserService {
         return transferBalanceRequest;
     }
 
-    public User getUserByUid(String uid) {
-        return userRepository.getUserByUidEquals(uid);
-    }
 
 }

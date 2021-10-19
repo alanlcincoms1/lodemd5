@@ -2,6 +2,8 @@ package bet.lucky.game.services;
 
 import bet.lucky.game.exception.ApplicationException;
 import bet.lucky.game.exception.message.UserMessage;
+import bet.lucky.game.external_dto.request.BetHistoryRequest;
+import bet.lucky.game.external_dto.response.BetResponseDto;
 import bet.lucky.game.external_dto.response.BetTopResponse;
 import bet.lucky.game.model.BetTop;
 import bet.lucky.game.external_dto.response.UserBalanceUpdateDto;
@@ -13,11 +15,12 @@ import bet.lucky.game.repository.impl.BetRepository;
 import bet.lucky.game.repository.impl.TransactionRepository;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -152,5 +155,20 @@ public class BetService {
         transactionJacpot.setStatus(Transaction.TransactionStatus.SUCCESS.name());
         transactionJacpot.setUpdatedDate(new Date());
         transactionRepository.save(transactionJacpot);
+    }
+
+    public Map<String, Object> getPageBetHistory(BetHistoryRequest request) {
+        Pageable paging = PageRequest.of(request.getPage() - 1, request.getSize());
+
+        Page<Bet> pageBets = betRepository.findAllByFullname(request.getFullname(), paging);
+        List<Bet> lstBets = pageBets.getContent();
+        List<BetResponseDto> responseDtoList = betMapper.mapToResponse(lstBets);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", responseDtoList);
+        response.put("total_items", pageBets.getTotalElements());
+        response.put("total_pages", pageBets.getTotalPages());
+        response.put("current_page", pageBets.getNumber() + 1);
+
+        return response;
     }
 }

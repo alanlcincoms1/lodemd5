@@ -2,6 +2,8 @@ package bet.lucky.game.controller;
 
 import bet.lucky.game.exception.ApplicationException;
 import bet.lucky.game.exception.message.BetMessage;
+import bet.lucky.game.exception.message.UserMessage;
+import bet.lucky.game.external_dto.request.BetHistoryRequest;
 import bet.lucky.game.external_dto.response.BetResponse;
 import bet.lucky.game.external_dto.response.BetTopResponse;
 import bet.lucky.game.internal_dto.BetForm;
@@ -35,10 +37,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -100,6 +99,20 @@ public class BetController {
         List<BetTopResponse> responseList = betService.findTopBet(token);
         return responseList;
     }
+
+    @PostMapping(value = "bet/history", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> getHistory(@RequestBody BetHistoryRequest request, HttpServletRequest httpServletRequest) {
+        Optional<UserRedis> userRedisOptional = userRedisRepository.findById(request.getToken());
+
+        if (userRedisOptional.isEmpty()) {
+            throw new ApplicationException(UserMessage.UNAUTHORIZED);
+        }
+        Map<String, Object> responseMap = betService.getPageBetHistory(request);
+        return responseMap;
+    }
+
+
+    //=================***********************========================
 
     @GetMapping(value = "user-bet/openbet")
     @ResponseBody
