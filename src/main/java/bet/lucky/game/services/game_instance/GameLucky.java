@@ -3,10 +3,10 @@ package bet.lucky.game.services.game_instance;
 import bet.lucky.game.constance.Constance;
 import bet.lucky.game.model.Bet;
 import bet.lucky.game.model.Config;
+import bet.lucky.game.model.Jackpot;
 import bet.lucky.game.model.Tables;
-import bet.lucky.game.model.UserCollect;
 import bet.lucky.game.model.redis.ConfigurationRedis;
-import bet.lucky.game.repository.impl.UserCollectRepository;
+import bet.lucky.game.repository.impl.JackpotRepository;
 import bet.lucky.game.services.game_core.DataResults;
 import bet.lucky.game.services.game_core.GameAbstract;
 import bet.lucky.game.utils.RandomUtils;
@@ -14,16 +14,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class GameLucky extends GameAbstract {
     public static final String GROUP_NAME = Constance.GROUP_NAME_LUCKY;
 
-    private final UserCollectRepository userCollectRepository;
+    private final JackpotRepository jackpotRepository;
 
-    public GameLucky(
-            UserCollectRepository userCollectRepository) {
-        this.userCollectRepository = userCollectRepository;
+    public GameLucky(JackpotRepository jackpotRepository) {
+        this.jackpotRepository = jackpotRepository;
         groupName = GameLucky.GROUP_NAME;
     }
 
@@ -51,45 +51,30 @@ public class GameLucky extends GameAbstract {
 
 
     public void updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
-        UserCollect userCollect = userCollectRepository.findByTableIdAndUid(bet.getTableId(), bet.getUid());
-        double jackPotAmount = getPercentBetAmount(betAmount, tables.getJackpotPercent());
-        if (userCollect == null) {
-            userCollect = new UserCollect();
-            userCollect.setTotalAmountWin(0.0);
-            userCollect.setFullname(fullname);
-            userCollect.setTableId(bet.getTableId());
-            userCollect.setUid(bet.getUid());
-            userCollect.setJackpot(jackPotAmount + tables.getInitJackpotAmount());
-        } else {
-            userCollect.setJackpot(jackPotAmount + (null == userCollect.getJackpot() ? 0 : userCollect.getJackpot()));
-        }
+        List<Jackpot> lstJackpot = jackpotRepository.findAll();
+        Jackpot jackpot = lstJackpot.get(0);
         Config result = dataResults.getResult();
-
-        double amount = (betAmount * result.getPrize()) - betAmount;
+        double amount;
+        double jackPotAmount = getPercentBetAmount(betAmount, jackpot.getJackpotPercent());
+        if (result.getPrize() == 100) {
+            amount = (jackpot.getJackpot() + jackPotAmount) - betAmount;
+            jackpot.setJackpot(jackpot.getInitJackpotAmount());
+        } else {
+            amount = (betAmount * result.getPrize()) - betAmount;
+            jackpot.setJackpot(jackpot.getJackpot() + jackPotAmount);
+        }
         if (amount > 0) {
             bet.setStatus(Bet.BetStatus.WIN.name());
             bet.setAmountWin(amount);
             bet.setAmountLose(0.0);
-            userCollect.setTotalAmountWin(userCollect.getTotalAmountWin() + amount * Constance.DONGIA_VND);
         } else {
             bet.setStatus(Bet.BetStatus.LOSE.name());
             bet.setAmountLose(Math.abs(amount));
             bet.setAmountWin(0.0);
         }
-
-//        if (result.isLose()) {
-//            bet.setStatus(Bet.BetStatus.LOSE.name());
-//            bet.setAmountLose(betAmount * result.getPrize());
-//            bet.setAmountWin(0.0);
-//        } else {
-//            bet.setStatus(Bet.BetStatus.WIN.name());
-//            bet.setAmountWin(betAmount * result.getPrize());
-//            bet.setAmountLose(0.0);
-//            userCollect.setTotalAmountWin(userCollect.getTotalAmountWin() + bet.getAmountWin() * Constance.DONGIA_VND);
-//        }
+        jackpotRepository.save(jackpot);
         bet.setPrize(result.getPrize());
         bet.setReel(result.getReel());
-        userCollectRepository.save(userCollect);
         bet.setUpdatedDate(new Date());
     }
 

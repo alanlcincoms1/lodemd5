@@ -9,5 +9,5 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserTokenResponseDto extends ExternalResponseDto {
-	private List<UserTokenDto> data;
+    private List<UserTokenDto> data;
 }

@@ -29,8 +29,6 @@ public class Tables extends BaseEntity {
     private String name;
     private String cheat;
     private String groupName;
-    private Double jackpotPercent;
-    private Double initJackpotAmount;
     private Integer status;
     private String gameId;
 }

@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 @Data
 public class BetHistoryRequest implements Serializable {
-    private String token;
     private String fullname;
     private Integer page;
     private Integer size;

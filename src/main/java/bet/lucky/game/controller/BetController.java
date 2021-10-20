@@ -2,7 +2,6 @@ package bet.lucky.game.controller;
 
 import bet.lucky.game.exception.ApplicationException;
 import bet.lucky.game.exception.message.BetMessage;
-import bet.lucky.game.exception.message.UserMessage;
 import bet.lucky.game.external_dto.request.BetHistoryRequest;
 import bet.lucky.game.external_dto.response.BetResponse;
 import bet.lucky.game.external_dto.response.BetTopResponse;
@@ -81,6 +80,7 @@ public class BetController {
 
             betRepository.save(bet);
         } catch (Exception ex) {
+            ex.printStackTrace();
             Utilities.LOGGER.error(ex.getMessage());
             throw new ApplicationException(BetMessage.INVALID_PARAMETER);
         }
@@ -101,11 +101,6 @@ public class BetController {
 
     @PostMapping(value = "bet/history", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getHistory(@RequestBody BetHistoryRequest request, HttpServletRequest httpServletRequest) {
-        Optional<UserRedis> userRedisOptional = userRedisRepository.findById(request.getToken());
-
-        if (userRedisOptional.isEmpty()) {
-            throw new ApplicationException(UserMessage.UNAUTHORIZED);
-        }
         Map<String, Object> responseMap = betService.getPageBetHistory(request);
         return responseMap;
     }
