@@ -16,7 +16,8 @@ import java.io.Serializable;
                 fields = {
                         @FieldResult(name = "fullname", column = "fullname"),
                         @FieldResult(name = "prize", column = "prize"),
-                        @FieldResult(name = "amount", column = "amount")
+                        @FieldResult(name = "amount", column = "amount"),
+                        @FieldResult(name = "amountWin", column = "amount_win")
 
                 }
         )
@@ -29,4 +30,5 @@ public class BetTop implements Serializable {
     String fullname;
     Double prize;
     Double amount;
+    Double amountWin;
 }

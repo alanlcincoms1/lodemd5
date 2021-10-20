@@ -35,7 +35,12 @@ public class BetService {
         List<BetTopResponse> listResponse = new ArrayList<>();
         List<BetTop> lstBet = betRepository.getTopBet();
         for (BetTop bet : lstBet) {
-            listResponse.add(BetTopResponse.builder().fullname(bet.getFullname()).amount(bet.getPrize() * bet.getAmount()).build());
+            double prize = bet.getPrize();
+            if (prize == 100) {
+                listResponse.add(BetTopResponse.builder().fullname(bet.getFullname()).amount(bet.getAmountWin()).build());
+            } else {
+                listResponse.add(BetTopResponse.builder().fullname(bet.getFullname()).amount(bet.getPrize() * bet.getAmount()).build());
+            }
         }
         return listResponse;
     }

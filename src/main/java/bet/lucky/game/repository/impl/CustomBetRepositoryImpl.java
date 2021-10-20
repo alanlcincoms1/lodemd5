@@ -14,7 +14,7 @@ public class CustomBetRepositoryImpl implements CustomBetRepository {
 
     @Override
     public List<BetTop> getTopBet() {
-        String sql = "SELECT fullname, MAX(prize) AS prize, amount " +
+        String sql = "SELECT fullname, MAX(prize) AS prize, amount, amount_win " +
                 " FROM bet WHERE status = 'WIN'" +
                 " GROUP BY fullname order by created_date desc limit 100";
 
