@@ -1,15 +1,12 @@
 package bet.lucky.game.services;
 
-import bet.lucky.game.exception.ApplicationException;
-import bet.lucky.game.exception.message.UserMessage;
 import bet.lucky.game.external_dto.request.BetHistoryRequest;
 import bet.lucky.game.external_dto.response.BetResponseDto;
 import bet.lucky.game.external_dto.response.BetTopResponse;
-import bet.lucky.game.model.BetTop;
 import bet.lucky.game.external_dto.response.UserBalanceUpdateDto;
-import bet.lucky.game.external_dto.response.UserTokenResponseDto;
 import bet.lucky.game.mapper.BetMapper;
 import bet.lucky.game.model.Bet;
+import bet.lucky.game.model.BetTop;
 import bet.lucky.game.model.Transaction;
 import bet.lucky.game.repository.impl.BetRepository;
 import bet.lucky.game.repository.impl.TransactionRepository;
@@ -34,12 +31,7 @@ public class BetService {
 
     private final BetMapper betMapper;
 
-    public List<BetTopResponse> findTopBet(String token) {
-        UserTokenResponseDto userTokenResponseDto = userService.getUser(token);
-        if (userTokenResponseDto == null) {
-            throw new ApplicationException(UserMessage.UNAUTHORIZED);
-        }
-
+    public List<BetTopResponse> findTopBet() {
         List<BetTopResponse> listResponse = new ArrayList<>();
         List<BetTop> lstBet = betRepository.getTopBet();
         for (BetTop bet : lstBet) {
