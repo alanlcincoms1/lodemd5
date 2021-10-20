@@ -6,6 +6,7 @@ import bet.lucky.game.repository.impl.JackpotRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -15,7 +16,8 @@ public class JackpotService {
 
     public JackpotResponse getJackpot() {
         List<Jackpot> lstJacpot = jackpotRepository.findAll();
-        return JackpotResponse.builder().jackpot(lstJacpot.get(0).getJackpot()).build();
+        BigDecimal amount = lstJacpot.get(0).getJackpot();
+        return JackpotResponse.builder().jackpot(amount).build();
     }
 
 }

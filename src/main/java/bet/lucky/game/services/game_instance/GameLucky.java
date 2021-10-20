@@ -12,6 +12,7 @@ import bet.lucky.game.services.game_core.GameAbstract;
 import bet.lucky.game.utils.RandomUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,22 +55,22 @@ public class GameLucky extends GameAbstract {
         List<Jackpot> lstJackpot = jackpotRepository.findAll();
         Jackpot jackpot = lstJackpot.get(0);
         Config result = dataResults.getResult();
-        double amount;
-        double jackPotAmount = getPercentBetAmount(betAmount, jackpot.getJackpotPercent());
+        BigDecimal amount;
+        BigDecimal jackPotAmount = getPercentBetAmount(betAmount, jackpot.getJackpotPercent());
         if (result.getPrize() == 100) {
-            amount = (jackpot.getJackpot() + jackPotAmount) - betAmount;
+            amount = jackpot.getJackpot().add(jackPotAmount).subtract(new BigDecimal(betAmount));
             jackpot.setJackpot(jackpot.getInitJackpotAmount());
         } else {
-            amount = (betAmount * result.getPrize()) - betAmount;
-            jackpot.setJackpot(jackpot.getJackpot() + jackPotAmount);
+            amount = new BigDecimal(betAmount).multiply(new BigDecimal(result.getPrize())).subtract(new BigDecimal(betAmount));
+            jackpot.setJackpot(jackpot.getJackpot().add(jackPotAmount));
         }
-        if (amount > 0) {
+        if (amount.compareTo(new BigDecimal(0)) > 0) {
             bet.setStatus(Bet.BetStatus.WIN.name());
-            bet.setAmountWin(amount);
+            bet.setAmountWin(amount.doubleValue());
             bet.setAmountLose(0.0);
         } else {
             bet.setStatus(Bet.BetStatus.LOSE.name());
-            bet.setAmountLose(Math.abs(amount));
+            bet.setAmountLose(Math.abs(amount.doubleValue()));
             bet.setAmountWin(0.0);
         }
         jackpotRepository.save(jackpot);
@@ -78,7 +79,7 @@ public class GameLucky extends GameAbstract {
         bet.setUpdatedDate(new Date());
     }
 
-    private static double getPercentBetAmount(double betAmount, double percent) {
-        return (betAmount / 100) * percent;
+    private static BigDecimal getPercentBetAmount(double betAmount, BigDecimal percent) {
+        return new BigDecimal(betAmount).divide(new BigDecimal(100)).multiply(percent);
     }
 }

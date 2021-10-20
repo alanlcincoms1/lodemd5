@@ -5,13 +5,14 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "jackpot")
 @Data
 public class Jackpot {
-    private Double jackpot;
-    private Double jackpotPercent;
+    private BigDecimal jackpot;
+    private BigDecimal jackpotPercent;
     @Id
-    private Double initJackpotAmount;
+    private BigDecimal initJackpotAmount;
 }
