@@ -68,7 +68,6 @@ public class BetService {
             transaction.setBet(bet);
             transaction.setType(bet.getStatus());
             transaction.setStatus(Transaction.TransactionStatus.NONE.name());
-            transaction.setTransactionHash(System.currentTimeMillis() + "");
             transaction.setCreatedDate(new Date());
             transaction.setUpdatedDate(new Date());
             transactionRepository.save(transaction);

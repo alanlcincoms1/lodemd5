@@ -67,12 +67,13 @@ public class BetController {
     public ResponseEntity<BetResponse> bet(@RequestBody BetForm betForm, HttpServletRequest httpServletRequest) {
 
         UserRedis user = userService.getUserByToken(betForm.getToken(), httpServletRequest);
-        DataResults dataResults = null;
+        DataResults dataResults;
+        Bet bet;
         try {
             Tables tables = tableRepository.findTableByIdEquals(betForm.getTableId());
             GameAbstract gameAbstract = gameFactory.getInstance(tables.getGroupName());
 
-            Bet bet = createBet(httpServletRequest, user, tables, betForm.getBetAmount());
+            bet = createBet(httpServletRequest, user, tables, betForm.getBetAmount());
 
             ConfigurationRedis configurationRedis = configurationService.getConfig(bet.getTableId());
             dataResults = gameAbstract.createRandomResult(tables, bet, configurationRedis);
@@ -86,6 +87,7 @@ public class BetController {
         }
 
         BetResponse betResponse = BetResponse.builder()
+                .transaction_id(bet.getTransactionHash() + "." + bet.getId())
                 .username(user.getFullname())
                 .reel(dataResults.getResult().getReel())
                 .prize(dataResults.getResult().getPrize())
@@ -177,35 +179,6 @@ public class BetController {
         return new ResponseEntity<>(gson.toJson(bets), HttpStatus.OK);
     }
 
-    @GetMapping(value = "update-bet/{id}")
-    @ResponseBody
-    public ResponseEntity<String> updateBets(@PathVariable Integer id) {
-        Bet bet = betRepository.getOne(id);
-        List<Transaction> transactions = null;
-        if ((Bet.BetStatus.WIN.name().equals(bet.getStatus()) || Bet.BetStatus.LOSE.name().equals(bet.getStatus()) || Bet.BetStatus.DRAW.name().equals(bet.getStatus()))) {
-            transactions = transactionRepository.findTransactionsByBetId(bet.getId());
-            if (transactions != null && transactions.size() > 0) {
-                Transaction lastedTransaction = transactions.get(0);
-                if (!Transaction.TransactionStatus.SUCCESS.name().equals(lastedTransaction.getStatus())) {
-//					bet.setIsRunning(Bet.RUNNING_STATUS.RUNNING.getValue());
-                    betRepository.save(bet);
-                } else {
-                    return new ResponseEntity<>("Bet này đã update rồi : transaction_id: " +
-                            lastedTransaction.getTransactionHash() + "." + lastedTransaction.getId() + " agent_transaction: " + lastedTransaction.getAgentTransactionId()
-                            + " Status: " + lastedTransaction.getType(), HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                return new ResponseEntity<>("Bet này chưa thành công", HttpStatus.PAYMENT_REQUIRED);
-            }
-        } else {
-            return new ResponseEntity<>("Bet này chưa thành công !", HttpStatus.PAYMENT_REQUIRED);
-        }
-
-        if (transactions.get(0).getNote() != null && transactions.get(0).getNote().contains("message=User is locked, error_code=606")) {
-            return new ResponseEntity<>("Block User " + transactions.get(0).getNote(), HttpStatus.NOT_ACCEPTABLE);
-        }
-        return new ResponseEntity<>("Update is success -> trạng thái trước đó là: " + transactions.get(0).getNote(), HttpStatus.OK);
-    }
 
     private Bet createBet(HttpServletRequest httpServletRequest, UserRedis user, Tables tables, Double betAmount) {
         Bet bet = new Bet();
@@ -219,6 +192,7 @@ public class BetController {
         bet.setCreatedDate(new Date());
         bet.setFullname(user.getFullname());
         bet.setAgencyId(user.getAgency_id());
+        bet.setTransactionHash(System.currentTimeMillis() + "");
         betRepository.save(bet);
         return bet;
     }

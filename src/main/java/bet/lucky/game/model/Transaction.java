@@ -33,7 +33,6 @@ public class Transaction {
     @ManyToOne
     private Bet bet;
     private String agentTransactionId;
-    private String transactionHash;
     private String status;
     private String type;
     private String note;

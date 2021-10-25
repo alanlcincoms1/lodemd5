@@ -60,7 +60,7 @@ public class Bet extends BaseEntity {
     private Integer isRunning;
     private String fullname;
     private Integer agencyId;
-
+    private String transactionHash;
     public Double getAmountWin() {
         return amountWin == null ? 0.0 : amountWin;
     }

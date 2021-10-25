@@ -203,7 +203,6 @@ public class UserService {
 
         TransferBalanceRequest transferBalanceRequest = createTransferBalanceRequest(
                 bet,
-                transaction,
                 tables,
                 Bet.BetStatus.BET.name()
         );
@@ -233,7 +232,6 @@ public class UserService {
         Tables tables = tableRepository.findTableByIdEquals(bet.getTableId());
         TransferBalanceRequest transferBalanceRequest = createTransferBalanceRequest(
                 bet,
-                transaction,
                 tables,
                 bet.getStatus()
         );
@@ -259,7 +257,6 @@ public class UserService {
 
     private TransferBalanceRequest createTransferBalanceRequest(
             Bet bet,
-            Transaction transaction,
             Tables tables,
             String action
     ) {
@@ -284,7 +281,7 @@ public class UserService {
                 break;
         }
         transfer.setAmount(amount * Constance.DONGIA_VND);
-        transfer.setTransaction_id(transaction.getTransactionHash() + "." + transaction.getId());
+        transfer.setTransaction_id(bet.getTransactionHash() + "." + bet.getId());
 
         BetDataRequest betDataRequest = new BetDataRequest();
         betDataRequest.setGame_id(prefixGame + tables.getGameId());
