@@ -26,4 +26,5 @@ public class BetResponseDto {
     private String status;
     private Integer isRunning;
     private String fullname;
+    private String transactionHash;
 }

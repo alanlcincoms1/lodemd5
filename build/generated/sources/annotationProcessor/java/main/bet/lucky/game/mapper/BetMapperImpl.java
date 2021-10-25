@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2021-10-25T11:00:58+0700",
+    date = "2021-10-25T11:10:32+0700",
     comments = "version: 1.3.0.Final, compiler: javac, environment: Java 11.0.11 (Oracle Corporation)"
 )
 @Component
@@ -53,6 +53,7 @@ public class BetMapperImpl implements BetMapper {
         betResponseDto.setStatus( bet.getStatus() );
         betResponseDto.setIsRunning( bet.getIsRunning() );
         betResponseDto.setFullname( bet.getFullname() );
+        betResponseDto.setTransactionHash( bet.getTransactionHash() );
 
         return betResponseDto;
     }
