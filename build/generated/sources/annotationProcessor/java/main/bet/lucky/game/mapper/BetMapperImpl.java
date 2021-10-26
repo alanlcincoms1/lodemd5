@@ -1,7 +1,9 @@
 package bet.lucky.game.mapper;
 
 import bet.lucky.game.external_dto.response.BetResponseDto;
+import bet.lucky.game.external_dto.response.BetTopResponse;
 import bet.lucky.game.model.Bet;
+import bet.lucky.game.model.BetTop;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2021-10-25T11:10:32+0700",
+    date = "2021-10-26T20:33:45+0700",
     comments = "version: 1.3.0.Final, compiler: javac, environment: Java 11.0.11 (Oracle Corporation)"
 )
 @Component
@@ -24,6 +26,20 @@ public class BetMapperImpl implements BetMapper {
         List<BetResponseDto> list = new ArrayList<BetResponseDto>( bet.size() );
         for ( Bet bet1 : bet ) {
             list.add( betToBetResponseDto( bet1 ) );
+        }
+
+        return list;
+    }
+
+    @Override
+    public List<BetTopResponse> mapToTopBetResponse(List<BetTop> bet) {
+        if ( bet == null ) {
+            return null;
+        }
+
+        List<BetTopResponse> list = new ArrayList<BetTopResponse>( bet.size() );
+        for ( BetTop betTop : bet ) {
+            list.add( betTopToBetTopResponse( betTop ) );
         }
 
         return list;
@@ -46,7 +62,6 @@ public class BetMapperImpl implements BetMapper {
         }
         betResponseDto.setTableId( bet.getTableId() );
         betResponseDto.setAmount( bet.getAmount() );
-        betResponseDto.setAmountLose( bet.getAmountLose() );
         betResponseDto.setAmountWin( bet.getAmountWin() );
         betResponseDto.setReel( bet.getReel() );
         betResponseDto.setPrize( bet.getPrize() );
@@ -56,5 +71,18 @@ public class BetMapperImpl implements BetMapper {
         betResponseDto.setTransactionHash( bet.getTransactionHash() );
 
         return betResponseDto;
+    }
+
+    protected BetTopResponse betTopToBetTopResponse(BetTop betTop) {
+        if ( betTop == null ) {
+            return null;
+        }
+
+        BetTopResponse betTopResponse = new BetTopResponse();
+
+        betTopResponse.setFullname( betTop.getFullname() );
+        betTopResponse.setAmount( betTop.getAmount() );
+
+        return betTopResponse;
     }
 }

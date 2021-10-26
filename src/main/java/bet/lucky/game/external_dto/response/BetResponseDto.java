@@ -19,7 +19,6 @@ public class BetResponseDto {
     private String memberId;
     private long tableId;
     private Double amount;
-    private Double amountLose;
     private Double amountWin;
     private int reel;
     private Double prize;

@@ -14,8 +14,8 @@ public class CustomBetRepositoryImpl implements CustomBetRepository {
 
     @Override
     public List<BetTop> getTopBet() {
-        String sql = "SELECT fullname, MAX(prize) AS prize, amount, amount_win " +
-                " FROM bet WHERE status = 'WIN'" +
+        String sql = "SELECT fullname, MAX(amount_win) AS amount " +
+                " FROM bet " +
                 " GROUP BY fullname order by created_date desc limit 100";
 
         Query query = em.createNativeQuery(sql, Constance.BET_TOP_MAPPING);

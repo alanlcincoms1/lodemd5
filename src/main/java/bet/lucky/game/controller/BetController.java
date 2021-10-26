@@ -7,12 +7,14 @@ import bet.lucky.game.external_dto.response.BetResponse;
 import bet.lucky.game.external_dto.response.BetTopResponse;
 import bet.lucky.game.internal_dto.BetForm;
 import bet.lucky.game.internal_dto.BetHistoriesForm;
-import bet.lucky.game.model.*;
+import bet.lucky.game.model.Bet;
+import bet.lucky.game.model.BetStatement;
+import bet.lucky.game.model.IBetStatement;
+import bet.lucky.game.model.Tables;
 import bet.lucky.game.model.redis.ConfigurationRedis;
 import bet.lucky.game.model.redis.UserRedis;
 import bet.lucky.game.repository.impl.BetRepository;
 import bet.lucky.game.repository.impl.TableRepository;
-import bet.lucky.game.repository.impl.TransactionRepository;
 import bet.lucky.game.repository.impl.UserRedisRepository;
 import bet.lucky.game.services.BetService;
 import bet.lucky.game.services.ConfigurationService;
@@ -46,8 +48,6 @@ public class BetController {
 
     private final BetRepository betRepository;
 
-    private final TransactionRepository transactionRepository;
-
     private final UserService userService;
 
     private final UserRedisRepository userRedisRepository;
@@ -78,7 +78,6 @@ public class BetController {
             ConfigurationRedis configurationRedis = configurationService.getConfig(bet.getTableId());
             dataResults = gameAbstract.createRandomResult(tables, bet, configurationRedis);
             gameAbstract.updateBetAfterResult(tables, bet, dataResults, user.getFullname(), betForm.getBetAmount());
-
             betRepository.save(bet);
         } catch (Exception ex) {
             ex.printStackTrace();

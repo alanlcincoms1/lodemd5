@@ -2,21 +2,14 @@ package bet.lucky.game.services;
 
 import bet.lucky.game.constance.Constance;
 import bet.lucky.game.exception.ApplicationException;
-import bet.lucky.game.exception.WalletException;
 import bet.lucky.game.exception.message.UserMessage;
 import bet.lucky.game.external_dto.request.BetDataRequest;
 import bet.lucky.game.external_dto.request.Transfer;
 import bet.lucky.game.external_dto.request.TransferBalanceRequest;
-import bet.lucky.game.external_dto.response.UserBalanceDto;
-import bet.lucky.game.external_dto.response.UserBalanceResponseDto;
-import bet.lucky.game.external_dto.response.UserBalanceUpdateDto;
-import bet.lucky.game.external_dto.response.UserBalanceUpdateResponseDto;
-import bet.lucky.game.external_dto.response.UserTokenDto;
-import bet.lucky.game.external_dto.response.UserTokenResponseDto;
+import bet.lucky.game.external_dto.response.*;
 import bet.lucky.game.model.Bet;
 import bet.lucky.game.model.SessionLog;
 import bet.lucky.game.model.Tables;
-import bet.lucky.game.model.Transaction;
 import bet.lucky.game.model.User;
 import bet.lucky.game.model.redis.UserRedis;
 import bet.lucky.game.repository.impl.SessionLogRepository;
@@ -49,9 +42,6 @@ public class UserService {
 
     @Value("${get_balance_url}")
     private String getBalanceURL;
-
-    @Value("${bo_auth_url}")
-    private String boAuthUrl;
 
     @Value("${prefix_game}")
     private String prefixGame;
@@ -199,36 +189,7 @@ public class UserService {
         return userBalanceResponseDto.getData().get(0);
     }
 
-    public UserBalanceUpdateDto updateBalanceWhenBet(String token, Bet bet, Transaction transaction, Tables tables) throws WalletException {
-
-        TransferBalanceRequest transferBalanceRequest = createTransferBalanceRequest(
-                bet,
-                tables,
-                Bet.BetStatus.BET.name()
-        );
-        List<TransferBalanceRequest> paramObject = new ArrayList<TransferBalanceRequest>();
-        paramObject.add(transferBalanceRequest);
-        String params = gson.toJson(paramObject);
-
-        UserBalanceUpdateResponseDto userBalanceUpdateResponseDto = (UserBalanceUpdateResponseDto) ExternalRequestUtils.makeRequest(
-                updateBalanceURL,
-                "POST",
-                params,
-                UserBalanceUpdateResponseDto.class
-        );
-        if (userBalanceUpdateResponseDto == null) {
-            throw new WalletException("Vui lòng thử lại!");
-        }
-
-        if (userBalanceUpdateResponseDto.getData() == null || userBalanceUpdateResponseDto.getData().isEmpty()) {
-            throw new WalletException("Vui lòng thử lại!!");
-        }
-
-        return userBalanceUpdateResponseDto.getData().get(0);
-    }
-
-
-    public UserBalanceUpdateDto updateBalanceAfterBetResult(Bet bet, Transaction transaction) {
+    public UserBalanceUpdateDto updateBalanceAfterBetResult(Bet bet) {
         Tables tables = tableRepository.findTableByIdEquals(bet.getTableId());
         TransferBalanceRequest transferBalanceRequest = createTransferBalanceRequest(
                 bet,
@@ -266,18 +227,15 @@ public class UserService {
         Transfer transfer = new Transfer();
         transfer.setMember_id(bet.getMemberId());
         transfer.setUid(bet.getUid());
-        double amount = 0.0;
+        double amount;
         switch (action) {
             case Constance.WIN:
                 amount = bet.getAmountWin();
                 transfer.setAction(Constance.WIN);
                 break;
-            case Constance.LOSE:
-                amount = bet.getAmountLose();
-                transfer.setAction(Constance.COMMIT);
-                transfer.setOption(Constance.DEBIT);
-                break;
             default:
+                amount = bet.getAmount();
+                transfer.setAction(Constance.BET);
                 break;
         }
         transfer.setAmount(amount * Constance.DONGIA_VND);
@@ -286,8 +244,8 @@ public class UserService {
         BetDataRequest betDataRequest = new BetDataRequest();
         betDataRequest.setGame_id(prefixGame + tables.getGameId());
         betDataRequest.setGame_name(tables.getName());
-        betDataRequest.setGame_round_id("1");
-        betDataRequest.setGame_ticket_id(bet.getId().toString());
+        betDataRequest.setGame_round_id(bet.getUid());
+        betDataRequest.setGame_ticket_id(bet.getUid() + "." + bet.getId());
         betDataRequest.setGame_ticket_status(action);
         betDataRequest.setGame_winlost(amount * Constance.DONGIA_VND);
         betDataRequest.setGame_stake(bet.getAmount() * Constance.DONGIA_VND);
@@ -299,6 +257,5 @@ public class UserService {
         transferBalanceRequest.setTransfers(lstTransfer);
         return transferBalanceRequest;
     }
-
 
 }

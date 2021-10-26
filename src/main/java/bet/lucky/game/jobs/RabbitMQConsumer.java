@@ -2,7 +2,6 @@ package bet.lucky.game.jobs;
 
 import bet.lucky.game.external_dto.response.BalanceRabitmqResponse;
 import bet.lucky.game.repository.impl.UserRepository;
-import bet.lucky.game.services.SocketService;
 import com.google.gson.Gson;
 import io.sentry.Sentry;
 import org.slf4j.Logger;
@@ -19,8 +18,6 @@ public class RabbitMQConsumer {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    SocketService socketService;
 
     @Autowired
     Gson gson;
@@ -44,8 +41,6 @@ public class RabbitMQConsumer {
             Map<String, Object> data = new HashMap<>();
             data.put("main_balance", balanceRabitmqResponse.getMain_balance());
             if (!balanceRabitmqResponse.getUid().contains("botslot") && !balanceRabitmqResponse.getUid().contains("go88_")) {
-                Thread a = new Thread(() -> socketService.sendToUser(balanceRabitmqResponse.getUid(), "balance", data));
-                a.start();
             }
         } catch (Exception e) {
             e.printStackTrace();

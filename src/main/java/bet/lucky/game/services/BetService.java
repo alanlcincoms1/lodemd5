@@ -32,17 +32,8 @@ public class BetService {
     private final BetMapper betMapper;
 
     public List<BetTopResponse> findTopBet() {
-        List<BetTopResponse> listResponse = new ArrayList<>();
         List<BetTop> lstBet = betRepository.getTopBet();
-        for (BetTop bet : lstBet) {
-            double prize = bet.getPrize();
-            if (prize == 100) {
-                listResponse.add(BetTopResponse.builder().fullname(bet.getFullname()).amount(bet.getAmountWin()).build());
-            } else {
-                listResponse.add(BetTopResponse.builder().fullname(bet.getFullname()).amount(bet.getPrize() * bet.getAmount()).build());
-            }
-        }
-        return listResponse;
+        return betMapper.mapToTopBetResponse(lstBet);
     }
 
     public void updateBetsAfterResult(String[] status) {
@@ -72,8 +63,7 @@ public class BetService {
             transaction.setUpdatedDate(new Date());
             transactionRepository.save(transaction);
 
-            UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet, transaction);
-
+            UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet);
             if (userBalanceUpdateDto == null || userBalanceUpdateDto.getError_code() != 200) {
                 transaction.setStatus(Transaction.TransactionStatus.FAIL.name());
                 transaction.setNote(userBalanceUpdateDto == null ? "no response" : userBalanceUpdateDto.toString());
@@ -116,7 +106,7 @@ public class BetService {
                 }
 
                 Transaction transaction = transactions.get(0);
-                UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet, transaction);
+                UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet);
 
                 if (userBalanceUpdateDto == null || (userBalanceUpdateDto.getError_code() != 200 && userBalanceUpdateDto.getError_code() != 409)) {
                     transaction.setStatus(Transaction.TransactionStatus.FAIL.name());
@@ -140,7 +130,6 @@ public class BetService {
 
         }
     }
-
 
     public void updateTransactionAfterCallWallet(Transaction transactionJacpot, UserBalanceUpdateDto userBalanceUpdateDto) {
         transactionJacpot.setAmountAfter(userBalanceUpdateDto.getAmount_after());

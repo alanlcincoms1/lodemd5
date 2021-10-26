@@ -1,12 +1,14 @@
 package bet.lucky.game.services.game_instance;
 
 import bet.lucky.game.constance.Constance;
+import bet.lucky.game.external_dto.response.UserBalanceUpdateDto;
 import bet.lucky.game.model.Bet;
 import bet.lucky.game.model.Config;
 import bet.lucky.game.model.Jackpot;
 import bet.lucky.game.model.Tables;
 import bet.lucky.game.model.redis.ConfigurationRedis;
 import bet.lucky.game.repository.impl.JackpotRepository;
+import bet.lucky.game.services.UserService;
 import bet.lucky.game.services.game_core.DataResults;
 import bet.lucky.game.services.game_core.GameAbstract;
 import bet.lucky.game.utils.RandomUtils;
@@ -21,9 +23,11 @@ import java.util.List;
 public class GameLucky extends GameAbstract {
     public static final String GROUP_NAME = Constance.GROUP_NAME_LUCKY;
 
+    private final UserService userService;
     private final JackpotRepository jackpotRepository;
 
-    public GameLucky(JackpotRepository jackpotRepository) {
+    public GameLucky(UserService userService, JackpotRepository jackpotRepository) {
+        this.userService = userService;
         this.jackpotRepository = jackpotRepository;
         groupName = GameLucky.GROUP_NAME;
     }
@@ -50,7 +54,6 @@ public class GameLucky extends GameAbstract {
         return dataResult;
     }
 
-
     public void updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
         List<Jackpot> lstJackpot = jackpotRepository.findAll();
         Jackpot jackpot = lstJackpot.get(0);
@@ -58,21 +61,17 @@ public class GameLucky extends GameAbstract {
         BigDecimal amount;
         BigDecimal jackPotAmount = getPercentBetAmount(betAmount, jackpot.getJackpotPercent());
         if (result.getPrize() == 100) {
-            amount = jackpot.getJackpot().add(jackPotAmount).subtract(new BigDecimal(betAmount));
+            amount = jackpot.getJackpot().add(jackPotAmount);
             jackpot.setJackpot(jackpot.getInitJackpotAmount());
         } else {
-            amount = new BigDecimal(betAmount).multiply(new BigDecimal(result.getPrize())).subtract(new BigDecimal(betAmount));
+            amount = new BigDecimal(betAmount).multiply(new BigDecimal(result.getPrize()));
             jackpot.setJackpot(jackpot.getJackpot().add(jackPotAmount));
         }
-        if (amount.compareTo(new BigDecimal(0)) > 0) {
-            bet.setStatus(Bet.BetStatus.WIN.name());
-            bet.setAmountWin(amount.doubleValue());
-            bet.setAmountLose(0.0);
-        } else {
-            bet.setStatus(Bet.BetStatus.LOSE.name());
-            bet.setAmountLose(Math.abs(amount.doubleValue()));
-            bet.setAmountWin(0.0);
-        }
+
+        UserBalanceUpdateDto userBalanceUpdateDto =  userService.updateBalanceAfterBetResult(bet);
+
+        bet.setStatus(Bet.BetStatus.WIN.name());
+        bet.setAmountWin(amount.doubleValue());
         jackpotRepository.save(jackpot);
         bet.setPrize(result.getPrize());
         bet.setReel(result.getReel());

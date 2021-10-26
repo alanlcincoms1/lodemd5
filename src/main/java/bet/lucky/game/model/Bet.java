@@ -52,7 +52,6 @@ public class Bet extends BaseEntity {
     private Long memberId;
     private long tableId;
     private Double amount;
-    private Double amountLose;
     private Double amountWin;
     private int reel;
     private Double prize;

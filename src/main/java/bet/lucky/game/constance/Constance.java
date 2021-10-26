@@ -7,8 +7,8 @@ public interface Constance {
     String BET_TOP_MAPPING = "BET_TOP_MAPPING";
     int DONGIA_VND = 1000;
 
+    String BET = "BET";
+    String RESERVE = "RESERVE";
     String WIN = "WIN";
-    String COMMIT = "COMMIT";
-    String DEBIT = "DEBIT";
     String LOSE = "LOSE";
 }
