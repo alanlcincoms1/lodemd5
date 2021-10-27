@@ -1,27 +1,22 @@
 package bet.lucky.game.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import io.sentry.Sentry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-@Component
-public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(RequestProcessingTimeInterceptor.class);
+@Component
+@Slf4j
+public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
         long startTime = System.currentTimeMillis();
         request.setAttribute("startTime", startTime);
-        Sentry.getContext().addExtra("pathAPI", request.getRequestURI());
         return true;
     }
 
@@ -38,7 +33,7 @@ public class RequestProcessingTimeInterceptor extends HandlerInterceptorAdapter 
             throws Exception {
         long startTime = (Long) request.getAttribute("startTime");
         if ((System.currentTimeMillis() - startTime) > 1000) {
-            logger.warn("Request URL:: is slow" + request.getRequestURL().toString() + ":: End Time=" + (System.currentTimeMillis() - startTime));
+            log.warn("Request URL:: is slow" + request.getRequestURL().toString() + ":: End Time=" + (System.currentTimeMillis() - startTime));
         }
     }
 }

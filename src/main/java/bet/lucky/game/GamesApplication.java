@@ -1,6 +1,5 @@
 package bet.lucky.game;
 
-import io.sentry.Sentry;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.ApplicationPidFileWriter;
@@ -19,7 +18,6 @@ public class GamesApplication {
             springApplication.addListeners(new ApplicationPidFileWriter("lucky.pid"));
             springApplication.run(args);
         } catch (Exception e) {
-            Sentry.capture(e);
             throw e;
         }
     }

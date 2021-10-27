@@ -10,8 +10,8 @@ import bet.lucky.game.model.BetTop;
 import bet.lucky.game.model.Transaction;
 import bet.lucky.game.repository.impl.BetRepository;
 import bet.lucky.game.repository.impl.TransactionRepository;
-import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +21,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BetService {
 
     private final BetRepository betRepository;
@@ -42,11 +43,11 @@ public class BetService {
                 Bet.RUNNING_STATUS.RUNNING.getValue()
         );
         for (Bet bet : bets) {
-            transactionBet(bet);
+            transactionBet(bet, UUID.randomUUID().toString());
         }
     }
 
-    public void transactionBet(Bet bet) {
+    public void transactionBet(Bet bet, String transactionId) {
         try {
             //update bet
             bet.setUpdatedDate(new Date());
@@ -66,7 +67,7 @@ public class BetService {
             }
             transactionRepository.save(transaction);
 
-            UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet);
+            UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet, transactionId);
             if (userBalanceUpdateDto == null || userBalanceUpdateDto.getError_code() != 200) {
                 transaction.setStatus(Transaction.TransactionStatus.FAIL.name());
                 transaction.setNote(userBalanceUpdateDto == null ? "no response" : userBalanceUpdateDto.toString());
@@ -88,7 +89,7 @@ public class BetService {
             betRepository.save(bet);
         } catch (Exception e) {
             e.printStackTrace();
-            Sentry.capture("Update WIN/LOSE Error: " + e.getMessage());
+            log.error("Update WIN/LOSE Error : {} ", e.getMessage());
         }
     }
 
@@ -111,7 +112,7 @@ public class BetService {
                 }
 
                 Transaction transaction = transactions.get(0);
-                UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet);
+                UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet, UUID.randomUUID().toString());
 
                 if (userBalanceUpdateDto == null || (userBalanceUpdateDto.getError_code() != 200 && userBalanceUpdateDto.getError_code() != 409)) {
                     transaction.setStatus(Transaction.TransactionStatus.FAIL.name());
@@ -130,7 +131,7 @@ public class BetService {
                 updateTransactionAfterCallWallet(transaction, userBalanceUpdateDto);
             } catch (Exception e) {
                 e.printStackTrace();
-                Sentry.capture("Update ERROR Error: " + e.getMessage());
+                log.error("Update ERROR Error : {} ", e.getMessage());
             }
 
         }

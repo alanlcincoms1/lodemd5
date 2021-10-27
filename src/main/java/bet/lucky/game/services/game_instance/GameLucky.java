@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class GameLucky extends GameAbstract {
@@ -55,7 +56,7 @@ public class GameLucky extends GameAbstract {
         return dataResult;
     }
 
-    public void updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
+    public String updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
         List<Jackpot> lstJackpot = jackpotRepository.findAll();
         Jackpot jackpot = lstJackpot.get(0);
         Config result = dataResults.getResult();
@@ -68,7 +69,8 @@ public class GameLucky extends GameAbstract {
             amount = new BigDecimal(betAmount).multiply(new BigDecimal(result.getPrize()));
             jackpot.setJackpot(jackpot.getJackpot().add(jackPotAmount));
         }
-        betService.transactionBet(bet);
+        String transactionId = UUID.randomUUID().toString();
+        betService.transactionBet(bet, transactionId);
         if (amount.compareTo(new BigDecimal(0)) == 0) {
             bet.setStatus(Bet.BetStatus.LOSE.name());
         } else {
@@ -80,6 +82,7 @@ public class GameLucky extends GameAbstract {
         bet.setPrize(result.getPrize());
         bet.setReel(result.getReel());
         bet.setUpdatedDate(new Date());
+        return transactionId;
     }
 
     private static BigDecimal getPercentBetAmount(double betAmount, BigDecimal percent) {

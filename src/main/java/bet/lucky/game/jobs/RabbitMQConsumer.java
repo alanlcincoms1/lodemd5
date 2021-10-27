@@ -3,7 +3,7 @@ package bet.lucky.game.jobs;
 import bet.lucky.game.external_dto.response.BalanceRabitmqResponse;
 import bet.lucky.game.repository.impl.UserRepository;
 import com.google.gson.Gson;
-import io.sentry.Sentry;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +12,11 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @Component
+@Slf4j
 public class RabbitMQConsumer {
     @Autowired
     UserRepository userRepository;
-
 
     @Autowired
     Gson gson;
@@ -44,7 +43,7 @@ public class RabbitMQConsumer {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Sentry.capture(e);
+            log.error(e.getMessage());
         }
 
     }

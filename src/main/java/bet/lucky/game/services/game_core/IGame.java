@@ -10,5 +10,5 @@ import org.springframework.stereotype.Service;
 public interface IGame {
     DataResults createRandomResult(Tables tables, Bet bet, ConfigurationRedis configurationRedis);
 
-    void updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String username, Double betAmount) throws WalletException;
+    String updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String username, Double betAmount) throws WalletException;
 }

@@ -16,17 +16,11 @@ spring:
     allow-bean-definition-overriding: true
 server:
   port: 8089
-sentry:
-  enabled: true
-  environment: development
 prefix_game: s1_
 
 auth_url: http://api-platform.sgame.uk/gamems/xh/agency/verifytoken/
 update_balance_url: http://api-platform.sgame.uk/gamems/xh/agency/transfer
 get_balance_url: http://api-platform.sgame.uk/gamems/xh/agency/wallet/
-
-kafka-service:
-  url: http://localhost:8088/api/v1/ticket-bonus/
 
 ---
 spring:
@@ -46,14 +40,9 @@ spring:
     allow-bean-definition-overriding: true
 server:
   port: 8089
-sentry:
-  enabled: true
-  environment: production
 prefix_game: s1_
 
 auth_url: http://api-platform.vinmic.com/gamems/xh/agency/verifytoken/
 update_balance_url: http://api-platform.vinmic.com/gamems/xh/agency/transfer
 get_balance_url: http://api-platform.vinmic.com/gamems/xh/agency/wallet/
 
-kafka-service:
-  url: http://localhost:8088/api/v1/ticket-bonus/

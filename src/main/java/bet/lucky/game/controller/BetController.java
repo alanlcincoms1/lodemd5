@@ -23,9 +23,9 @@ import bet.lucky.game.services.game_core.DataResults;
 import bet.lucky.game.services.game_core.GameAbstract;
 import bet.lucky.game.services.game_core.GameFactory;
 import bet.lucky.game.utils.ResponseFactory;
-import bet.lucky.game.utils.Utilities;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +42,7 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/")
+@Slf4j
 public class BetController {
     private static final int MAX_LIMIT = 60;
     public static final int MAX_PAGE = 20;
@@ -69,6 +70,7 @@ public class BetController {
         UserRedis user = userService.getUserByToken(betForm.getToken(), httpServletRequest);
         DataResults dataResults;
         Bet bet;
+        String transactionId = null;
         try {
             Tables tables = tableRepository.findTableByIdEquals(betForm.getTableId());
             GameAbstract gameAbstract = gameFactory.getInstance(tables.getGroupName());
@@ -77,16 +79,16 @@ public class BetController {
 
             ConfigurationRedis configurationRedis = configurationService.getConfig(bet.getTableId());
             dataResults = gameAbstract.createRandomResult(tables, bet, configurationRedis);
-            gameAbstract.updateBetAfterResult(tables, bet, dataResults, user.getFullname(), betForm.getBetAmount());
+            transactionId = gameAbstract.updateBetAfterResult(tables, bet, dataResults, user.getFullname(), betForm.getBetAmount());
             betRepository.save(bet);
         } catch (Exception ex) {
             ex.printStackTrace();
-            Utilities.LOGGER.error(ex.getMessage());
+            log.error("bet lỗi: " + ex.getMessage());
             throw new ApplicationException(BetMessage.INVALID_PARAMETER);
         }
 
         BetResponse betResponse = BetResponse.builder()
-                .transaction_id(bet.getTransactionHash() + "." + bet.getId())
+                .transaction_id(transactionId)
                 .username(user.getFullname())
                 .reel(dataResults.getResult().getReel())
                 .prize(dataResults.getResult().getPrize())

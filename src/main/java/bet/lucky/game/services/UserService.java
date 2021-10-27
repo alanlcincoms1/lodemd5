@@ -18,8 +18,8 @@ import bet.lucky.game.repository.impl.UserRedisRepository;
 import bet.lucky.game.repository.impl.UserRepository;
 import bet.lucky.game.utils.ExternalRequestUtils;
 import com.google.gson.Gson;
-import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     @Value("${auth_url}")
     private String verifyTokenURL;
@@ -186,12 +187,13 @@ public class UserService {
         return userBalanceResponseDto.getData().get(0);
     }
 
-    public UserBalanceUpdateDto updateBalanceAfterBetResult(Bet bet) {
+    public UserBalanceUpdateDto updateBalanceAfterBetResult(Bet bet, String transactionId) {
         Tables tables = tableRepository.findTableByIdEquals(bet.getTableId());
         TransferBalanceRequest transferBalanceRequest = createTransferBalanceRequest(
                 bet,
                 tables,
-                bet.getStatus()
+                bet.getStatus(),
+                transactionId
         );
         String params = gson.toJson(transferBalanceRequest);
         UserBalanceUpdateResponseDto userBalanceUpdateResponseDto = (UserBalanceUpdateResponseDto) ExternalRequestUtils.makeRequest(
@@ -205,7 +207,7 @@ public class UserService {
         }
 
         if (CollectionUtils.isEmpty(userBalanceUpdateResponseDto.getData())) {
-            Sentry.capture("gọi qua Wallet lỗi này: " + userBalanceUpdateResponseDto.getMessage());
+            log.error("gọi qua Wallet lỗi này: " + userBalanceUpdateResponseDto.getMessage());
             return null;
         }
 
@@ -215,7 +217,8 @@ public class UserService {
     private TransferBalanceRequest createTransferBalanceRequest(
             Bet bet,
             Tables tables,
-            String action
+            String action,
+            String transactionId
     ) {
         TransferBalanceRequest transferBalanceRequest = new TransferBalanceRequest();
         transferBalanceRequest.setAgency_id(bet.getAgencyId());
@@ -242,7 +245,7 @@ public class UserService {
                 break;
         }
         transfer.setAmount(amount * Constance.DONGIA_VND);
-        transfer.setTransaction_id(UUID.randomUUID().toString());
+        transfer.setTransaction_id(transactionId);
 
         betDataRequest.setGame_id(prefixGame + tables.getGameId());
         betDataRequest.setGame_name(tables.getName());

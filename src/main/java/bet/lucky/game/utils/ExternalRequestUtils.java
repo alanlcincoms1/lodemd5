@@ -2,21 +2,17 @@ package bet.lucky.game.utils;
 
 import com.google.gson.Gson;
 import com.squareup.okhttp.*;
-import io.sentry.Sentry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class ExternalRequestUtils {
-    public static Logger logger = LoggerFactory.getLogger(ExternalRequestUtils.class.getName());
 
     public static Object makeRequest(String urlStr, String action, String parameters, Type className) {
-        Sentry.getContext().addExtra("requestServiceData", parameters);
-        Sentry.getContext().addExtra("urlService", urlStr);
-        Sentry.getContext().addExtra("actionService", action);
+        log.info("requestServiceData: {}, urlService: {}, actionService: {}", parameters, urlStr, action);
         OkHttpClient client = new OkHttpClient();
 
         client.setConnectTimeout(30, TimeUnit.SECONDS);
@@ -42,34 +38,33 @@ public class ExternalRequestUtils {
             response = client.newCall(request).execute();
             if (response.code() != 200) {
                 String result = response.body().string();
-                Sentry.getContext().addExtra("responseService", result);
+                log.info("responseService: {}", result);
                 response.body().close();
-                Sentry.capture("Call wallet error: " + result);
+                log.info("Call wallet error: {}", result);
                 return null;
             }
             if (className == null) {
                 String result = response.body().string();
-                Sentry.getContext().addExtra("responseService", result);
+                log.info("responseService: {}", result);
                 response.body().close();
                 return response;
             }
 
             String result = response.body().string();
-            Sentry.getContext().addExtra("responseService", result);
+            log.info("responseService: {}", result);
             response.body().close();
             return g.fromJson(result, className);
         } catch (IOException e) {
             e.printStackTrace();
-            Sentry.capture(e);
+            log.error(e.getMessage());
         }
 
         return null;
     }
 
     public static Object request(String urlStr, String action, String parameters, Type className) {
-        Sentry.getContext().addExtra("requestServiceData", parameters);
-        Sentry.getContext().addExtra("urlService", urlStr);
-        Sentry.getContext().addExtra("actionService", action);
+        log.info("requestServiceData: {}, urlService: {}, actionService: {}", parameters, urlStr, action);
+
         OkHttpClient client = new OkHttpClient();
 
         client.setConnectTimeout(30, TimeUnit.SECONDS);
@@ -95,10 +90,10 @@ public class ExternalRequestUtils {
             response = client.newCall(request).execute();
 
             String result = response.body().string();
-            Sentry.getContext().addExtra("responseService", result);
+            log.info("responseService: {}", result);
             if (response.code() == 500) {
-                logger.error(result);
-                logger.error(response.body().toString());
+                log.error(result);
+                log.error(response.body().toString());
             }
             if (response.code() >= 300) {
                 return null;
@@ -108,7 +103,7 @@ public class ExternalRequestUtils {
             return g.fromJson(result, className);
         } catch (IOException e) {
             e.printStackTrace();
-            Sentry.capture(e);
+            log.error(e.getMessage());
         }
 
         return null;
