@@ -14,6 +14,6 @@ public class UpdateBetsToFinishERROR {
 
     @Scheduled(fixedDelay = 10000)
     public void scheduleTaskWithFixedDelay() {
-        betService.updateBetsError(new String[]{Bet.BetStatus.WIN.name()});
+        betService.updateBetsError(new String[]{Bet.BetStatus.WIN.name(),Bet.BetStatus.LOSE.name()});
     }
 }

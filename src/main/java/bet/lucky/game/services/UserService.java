@@ -197,7 +197,6 @@ public class UserService {
                 bet.getStatus()
         );
         String params = gson.toJson(transferBalanceRequest);
-
         UserBalanceUpdateResponseDto userBalanceUpdateResponseDto = (UserBalanceUpdateResponseDto) ExternalRequestUtils.makeRequest(
                 updateBalanceURL,
                 "POST",
@@ -223,8 +222,9 @@ public class UserService {
     ) {
         TransferBalanceRequest transferBalanceRequest = new TransferBalanceRequest();
         transferBalanceRequest.setAgency_id(bet.getAgencyId());
-
         Transfer transfer = new Transfer();
+        BetDataRequest betDataRequest = new BetDataRequest();
+
         transfer.setMember_id(bet.getMemberId());
         transfer.setUid(bet.getUid());
         double amount;
@@ -232,6 +232,12 @@ public class UserService {
             case Constance.WIN:
                 amount = bet.getAmountWin();
                 transfer.setAction(Constance.WIN);
+                betDataRequest.setGame_winlost(bet.getAmountWin() * Constance.DONGIA_VND);
+                break;
+            case Constance.LOSE:
+                amount = bet.getAmountWin();
+                transfer.setAction(Constance.WIN);
+                betDataRequest.setGame_winlost(bet.getAmount() * Constance.DONGIA_VND);
                 break;
             default:
                 amount = bet.getAmount();
@@ -241,13 +247,11 @@ public class UserService {
         transfer.setAmount(amount * Constance.DONGIA_VND);
         transfer.setTransaction_id(bet.getTransactionHash() + "." + bet.getId());
 
-        BetDataRequest betDataRequest = new BetDataRequest();
         betDataRequest.setGame_id(prefixGame + tables.getGameId());
         betDataRequest.setGame_name(tables.getName());
-        betDataRequest.setGame_round_id(bet.getUid());
-        betDataRequest.setGame_ticket_id(bet.getUid() + "." + bet.getId());
+        betDataRequest.setGame_round_id(prefixGame + bet.getId());
+        betDataRequest.setGame_ticket_id(prefixGame + bet.getId());
         betDataRequest.setGame_ticket_status(action);
-        betDataRequest.setGame_winlost(amount * Constance.DONGIA_VND);
         betDataRequest.setGame_stake(bet.getAmount() * Constance.DONGIA_VND);
         betDataRequest.setIp(bet.getIp());
         transfer.setData(betDataRequest);

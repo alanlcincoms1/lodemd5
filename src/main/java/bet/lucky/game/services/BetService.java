@@ -78,7 +78,9 @@ public class BetService {
             }
             //update transaction
             updateTransactionAfterCallWallet(transaction, userBalanceUpdateDto);
-            bet.setIsRunning(Bet.RUNNING_STATUS.FINISH.getValue());
+            if (!bet.getStatus().equals(Bet.BetStatus.BET.name())) {
+                bet.setIsRunning(Bet.RUNNING_STATUS.FINISH.getValue());
+            }
             bet.setUpdatedDate(new Date());
             betRepository.save(bet);
         } catch (Exception e) {
