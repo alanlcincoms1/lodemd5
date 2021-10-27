@@ -53,14 +53,17 @@ public class BetService {
             bet = betRepository.save(bet);
 
             //create transaction
-            Transaction transaction = new Transaction();
-            transaction.setMemberId(bet.getMemberId());
-            transaction.setAmount(bet.getAmount());
-            transaction.setBet(bet);
-            transaction.setType(bet.getStatus());
-            transaction.setStatus(Transaction.TransactionStatus.NONE.name());
-            transaction.setCreatedDate(new Date());
-            transaction.setUpdatedDate(new Date());
+            Transaction transaction = transactionRepository.findAllByStatusAndTypeAndBet(bet.getStatus(), Transaction.TransactionStatus.NONE.name(), bet);
+            if (transaction == null) {
+                transaction = new Transaction();
+                transaction.setMemberId(bet.getMemberId());
+                transaction.setAmount(bet.getAmount());
+                transaction.setBet(bet);
+                transaction.setType(bet.getStatus());
+                transaction.setStatus(Transaction.TransactionStatus.NONE.name());
+                transaction.setCreatedDate(new Date());
+                transaction.setUpdatedDate(new Date());
+            }
             transactionRepository.save(transaction);
 
             UserBalanceUpdateDto userBalanceUpdateDto = userService.updateBalanceAfterBetResult(bet);

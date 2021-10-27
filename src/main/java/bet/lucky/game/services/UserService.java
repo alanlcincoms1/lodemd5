@@ -26,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -245,7 +242,7 @@ public class UserService {
                 break;
         }
         transfer.setAmount(amount * Constance.DONGIA_VND);
-        transfer.setTransaction_id(bet.getTransactionHash() + "." + bet.getId());
+        transfer.setTransaction_id(UUID.randomUUID().toString());
 
         betDataRequest.setGame_id(prefixGame + tables.getGameId());
         betDataRequest.setGame_name(tables.getName());
