@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface BetRepository extends JpaRepository<Bet, Integer>, CustomBetRepository {
 
-    Page<Bet> findAllByFullname(String fullname, Pageable pageable);
+    Page<Bet> findAllByUid(String uid, Pageable pageable);
 
     @Query(value = "select * from bet where uid = :uid and status = 'WIN' order by prize desc limit :limit",
             nativeQuery = true
