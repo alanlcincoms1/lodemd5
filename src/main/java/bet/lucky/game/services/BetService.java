@@ -151,7 +151,7 @@ public class BetService {
     public Map<String, Object> getPageBetHistory(BetHistoryRequest request) {
         Pageable paging = PageRequest.of(request.getPage() - 1, request.getSize());
 
-        Page<Bet> pageBets = betRepository.findAllByUid(request.getUid(), paging);
+        Page<Bet> pageBets = betRepository.findAllByUidOrderByIdDesc(request.getUid(), paging);
         List<Bet> lstBets = pageBets.getContent();
         List<BetResponseDto> responseDtoList = betMapper.mapToResponse(lstBets);
         Map<String, Object> response = new HashMap<>();
