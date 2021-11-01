@@ -17,7 +17,7 @@ public class JackpotService {
     public JackpotResponse getJackpot() {
         List<Jackpot> lstJacpot = jackpotRepository.findAll();
         BigDecimal amount = lstJacpot.get(0).getJackpot();
-        return JackpotResponse.builder().jackpot(amount).build();
+        return JackpotResponse.builder().jackpot(amount.multiply(new BigDecimal(1000))).build();
     }
 
 }
