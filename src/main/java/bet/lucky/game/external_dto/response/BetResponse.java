@@ -13,4 +13,5 @@ public class BetResponse implements Serializable {
     Integer reel;
     Double prize;
     String username;
+    Double balance;
 }

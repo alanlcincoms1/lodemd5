@@ -70,7 +70,7 @@ public class BetController {
         UserRedis user = userService.getUserByToken(betForm.getToken(), httpServletRequest);
         DataResults dataResults;
         Bet bet;
-        String transactionId = null;
+        BetResponse betResponse;
         try {
             Tables tables = tableRepository.findTableByIdEquals(betForm.getTableId());
             GameAbstract gameAbstract = gameFactory.getInstance(tables.getGroupName());
@@ -79,20 +79,14 @@ public class BetController {
 
             ConfigurationRedis configurationRedis = configurationService.getConfig(bet.getTableId());
             dataResults = gameAbstract.createRandomResult(tables, bet, configurationRedis);
-            transactionId = gameAbstract.updateBetAfterResult(tables, bet, dataResults, user.getFullname(), betForm.getBetAmount());
+            betResponse = gameAbstract.updateBetAfterResult(tables, bet, dataResults, user.getFullname(), betForm.getBetAmount());
             betRepository.save(bet);
         } catch (Exception ex) {
             ex.printStackTrace();
             log.error("bet lỗi: " + ex.getMessage());
             throw new ApplicationException(BetMessage.INVALID_PARAMETER);
         }
-
-        BetResponse betResponse = BetResponse.builder()
-                .transaction_id(transactionId)
-                .username(user.getFullname())
-                .reel(dataResults.getResult().getReel())
-                .prize(dataResults.getResult().getPrize())
-                .build();
+        betResponse.setUsername(user.getFullname());
         return ResponseFactory.success(betResponse);
     }
 

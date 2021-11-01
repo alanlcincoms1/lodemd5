@@ -47,7 +47,7 @@ public class BetService {
         }
     }
 
-    public void transactionBet(Bet bet, String transactionId) {
+    public UserBalanceUpdateDto transactionBet(Bet bet, String transactionId) {
         try {
             //update bet
             bet.setUpdatedDate(new Date());
@@ -78,7 +78,7 @@ public class BetService {
                 bet.setIsRunning(Bet.RUNNING_STATUS.ERROR.getValue());
                 bet.setUpdatedDate(new Date());
                 betRepository.save(bet);
-                return;
+                return null;
             }
             //update transaction
             updateTransactionAfterCallWallet(transaction, userBalanceUpdateDto);
@@ -87,10 +87,12 @@ public class BetService {
             }
             bet.setUpdatedDate(new Date());
             betRepository.save(bet);
+            return userBalanceUpdateDto;
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Update WIN/LOSE Error : {} ", e.getMessage());
         }
+        return null;
     }
 
     public void updateBetsError(String[] status) {

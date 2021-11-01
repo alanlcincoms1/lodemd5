@@ -1,6 +1,8 @@
 package bet.lucky.game.services.game_instance;
 
 import bet.lucky.game.constance.Constance;
+import bet.lucky.game.external_dto.response.BetResponse;
+import bet.lucky.game.external_dto.response.UserBalanceUpdateDto;
 import bet.lucky.game.model.Bet;
 import bet.lucky.game.model.Config;
 import bet.lucky.game.model.Jackpot;
@@ -56,7 +58,7 @@ public class GameLucky extends GameAbstract {
         return dataResult;
     }
 
-    public String updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
+    public BetResponse updateBetAfterResult(Tables tables, Bet bet, DataResults dataResults, String fullname, Double betAmount) {
         List<Jackpot> lstJackpot = jackpotRepository.findAll();
         Jackpot jackpot = lstJackpot.get(0);
         Config result = dataResults.getResult();
@@ -70,7 +72,7 @@ public class GameLucky extends GameAbstract {
             jackpot.setJackpot(jackpot.getJackpot().add(jackPotAmount));
         }
         String transactionId = UUID.randomUUID().toString();
-        betService.transactionBet(bet, transactionId);
+        UserBalanceUpdateDto userBalanceUpdateDto = betService.transactionBet(bet, transactionId);
         if (amount.compareTo(new BigDecimal(0)) == 0) {
             bet.setStatus(Bet.BetStatus.LOSE.name());
         } else {
@@ -82,7 +84,13 @@ public class GameLucky extends GameAbstract {
         bet.setPrize(result.getPrize());
         bet.setReel(result.getReel());
         bet.setUpdatedDate(new Date());
-        return transactionId;
+        BetResponse betResponse = BetResponse.builder()
+                .transaction_id(transactionId)
+                .reel(dataResults.getResult().getReel())
+                .prize(dataResults.getResult().getPrize())
+                .balance(userBalanceUpdateDto.getAmount_after())
+                .build();
+        return betResponse;
     }
 
     private static BigDecimal getPercentBetAmount(double betAmount, BigDecimal percent) {
