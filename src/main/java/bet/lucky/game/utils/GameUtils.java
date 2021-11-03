@@ -20,7 +20,7 @@ public class GameUtils {
             int n = userName.length();
             for (int i = 0; i < n; i++) {
                 char c = userName.charAt(i);
-                if (i == 0 || i == 1 || i == n - 1) {
+                if (i <= n - 4) {
                     newUN.append(c);
                 } else {
                     newUN.append("*");

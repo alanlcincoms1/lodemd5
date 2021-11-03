@@ -10,6 +10,7 @@ import bet.lucky.game.model.BetTop;
 import bet.lucky.game.model.Transaction;
 import bet.lucky.game.repository.impl.BetRepository;
 import bet.lucky.game.repository.impl.TransactionRepository;
+import bet.lucky.game.utils.GameUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,7 +35,11 @@ public class BetService {
 
     public List<BetTopResponse> findTopBet() {
         List<BetTop> lstBet = betRepository.getTopBet();
-        return betMapper.mapToTopBetResponse(lstBet);
+        List<BetTopResponse> result = betMapper.mapToTopBetResponse(lstBet);
+        for (BetTopResponse response : result) {
+            response.setFullname(GameUtils.convertUS(response.getFullname()));
+        }
+        return result;
     }
 
     public void updateBetsAfterResult(String[] status) {

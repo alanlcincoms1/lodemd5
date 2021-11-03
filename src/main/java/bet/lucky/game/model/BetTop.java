@@ -15,6 +15,7 @@ import java.io.Serializable;
                 entityClass = BetTop.class,
                 fields = {
                         @FieldResult(name = "fullname", column = "fullname"),
+                        @FieldResult(name = "stake", column = "stake"),
                         @FieldResult(name = "amount", column = "amount")
 
                 }
@@ -26,5 +27,6 @@ public class BetTop implements Serializable {
     private static final long serialVersionUID = -2054389137452244283L;
     @Id
     String fullname;
+    Double stake;
     Double amount;
 }

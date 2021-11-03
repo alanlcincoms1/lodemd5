@@ -8,5 +8,6 @@ import java.io.Serializable;
 public class BetTopResponse implements Serializable {
     private static final long serialVersionUID = 3046808803417934016L;
     String fullname;
+    Double stake;
     Double amount;
 }
