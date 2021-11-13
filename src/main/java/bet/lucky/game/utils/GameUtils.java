@@ -1,5 +1,7 @@
 package bet.lucky.game.utils;
 
+import java.util.UUID;
+
 public class GameUtils {
     public static int countStringinString(String str, String findStr) {
         int lastIndex = 0;
@@ -30,5 +32,9 @@ public class GameUtils {
             return "******";
         }
         return newUN.toString();
+    }
+
+    public static String getUUID(){
+        return UUID.randomUUID().toString();
     }
 }

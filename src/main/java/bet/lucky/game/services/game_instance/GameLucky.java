@@ -13,6 +13,7 @@ import bet.lucky.game.services.BetService;
 import bet.lucky.game.services.UserService;
 import bet.lucky.game.services.game_core.DataResults;
 import bet.lucky.game.services.game_core.GameAbstract;
+import bet.lucky.game.utils.GameUtils;
 import bet.lucky.game.utils.RandomUtils;
 import org.springframework.stereotype.Service;
 
@@ -71,8 +72,7 @@ public class GameLucky extends GameAbstract {
             amount = new BigDecimal(betAmount).multiply(new BigDecimal(result.getPrize()));
             jackpot.setJackpot(jackpot.getJackpot().add(jackPotAmount));
         }
-        String transactionId = UUID.randomUUID().toString();
-        UserBalanceUpdateDto userBalanceUpdateDto = betService.transactionBet(bet, transactionId);
+        UserBalanceUpdateDto userBalanceUpdateDto = betService.transactionBet(bet, GameUtils.getUUID());
         if (amount.compareTo(new BigDecimal(0)) == 0) {
             bet.setStatus(Bet.BetStatus.LOSE.name());
         } else {
@@ -84,6 +84,9 @@ public class GameLucky extends GameAbstract {
         bet.setPrize(result.getPrize());
         bet.setReel(result.getReel());
         bet.setUpdatedDate(new Date());
+        String transactionId = UUID.randomUUID().toString();
+
+        userBalanceUpdateDto = betService.transactionBet(bet, transactionId);
         BetResponse betResponse = BetResponse.builder()
                 .transaction_id(transactionId)
                 .reel(dataResults.getResult().getReel())

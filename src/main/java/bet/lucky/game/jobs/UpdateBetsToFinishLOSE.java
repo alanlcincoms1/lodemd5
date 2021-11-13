@@ -12,8 +12,8 @@ public class UpdateBetsToFinishLOSE {
     @Autowired
     BetService betService;
 
-    @Scheduled(fixedDelay = 100)
-    public void scheduleTaskWithFixedDelay() {
-        betService.updateBetsAfterResult(new String[]{Bet.BetStatus.LOSE.name()});
-    }
+//    @Scheduled(fixedDelay = 100)
+//    public void scheduleTaskWithFixedDelay() {
+//        betService.updateBetsAfterResult(new String[]{Bet.BetStatus.LOSE.name()});
+//    }
 }
