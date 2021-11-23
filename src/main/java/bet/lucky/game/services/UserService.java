@@ -166,6 +166,7 @@ public class UserService {
                 user.setUpdatedDate(new Date());
             }
             userRepository.save(user);
+            userRedisRepository.save(userRedis);
         } else {
             userRedis = userRedisOptional.get();
         }

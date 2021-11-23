@@ -31,7 +31,7 @@ public class UserController {
 
     @PostMapping(value = "auth", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Object> auth(@RequestBody AuthForm authForm, HttpServletRequest httpServletRequest) throws WalletException {
+    public ResponseEntity<Object> auth(@RequestBody AuthForm authForm, HttpServletRequest httpServletRequest) {
         log.info("auth request [{}]", authForm);
         UserTokenResponseDto user = userService.auth(authForm.getToken(), httpServletRequest);
         try {
